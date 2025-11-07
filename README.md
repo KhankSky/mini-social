@@ -131,39 +131,20 @@ Branch chính:
 - develop: tích hợp feature, chuẩn bị release
 
 Branch tạm thời:
-- feature/<ticket>-short-desc
-  - Ví dụ: feature/123-login
-- fix/<ticket>-short-desc
-  - Ví dụ: fix/456-null-user
-- hotfix/<ticket>-short-desc
+- feature/<your_name>/short-desc
+  - Ví dụ: feature/khank/login
+- fix/<your_name>-short-desc
+  - Ví dụ: fix/khank/null-user
+- hotfix/<your_name>/short-desc
   - Dùng khi sửa gấp trên main
-- release/vX.Y.Z
-  - Chuẩn bị release, merge sang main và develop
 
 Quy trình cơ bản:
 1. Tạo branch từ develop (hoặc từ main cho hotfix):
-   - Windows / terminal:
-     git checkout develop
-     git pull origin develop
-     git checkout -b feature/123-short-desc
-     git push -u origin feature/123-short-desc
 2. Làm việc, commit theo convention ở trên.
 3. Push và tạo Pull Request vào develop (hoặc main cho hotfix/release).
 4. PR phải có mô tả, liên kết issue (nếu có) và review trước khi merge.
 5. Sau merge feature vào develop, xóa branch remote khi xong:
    git push origin --delete feature/123-short-desc
 
-Ví dụ lệnh nhanh (Windows PowerShell):
-- Tạo branch:
-  git checkout develop
-  git pull origin develop
-  git checkout -b feature/123-login
-  git push -u origin feature/123-login
-
-- Tạo hotfix từ main:
-  git checkout main
-  git pull origin main
-  git checkout -b hotfix/789-fix-login
-  git push -u origin hotfix/789-fix-login
 
 Kết thúc.
