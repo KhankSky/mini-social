@@ -9,11 +9,12 @@ import com.example.social.dto.response.filter.ResultPaginationDTO;
 import com.example.social.dto.response.user.ResCreateUserDTO;
 import com.example.social.dto.response.user.ResGetUserDTO;
 import com.example.social.dto.response.user.ResUpdateUserDTO;
-import com.example.social.entity.User;
+import com.example.social.domain.User;
 import com.example.social.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,9 +25,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public ResCreateUserDTO createUser(ReqCreateUserDTO reqUser) throws ResourceAlreadyExistsException {
@@ -37,7 +40,7 @@ public class UserService {
 
         User user = User.builder()
                 .username(reqUser.getUsername())
-                .password(reqUser.getPassword())
+                .password(this.passwordEncoder.encode(reqUser.getPassword()))
                 .email(reqUser.getEmail())
                 .avatarUrl(reqUser.getAvatarUrl())
                 .bio(reqUser.getBio())
@@ -126,5 +129,9 @@ public class UserService {
         User userDB = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id = " + id));
         userRepository.delete(userDB);
+    }
+
+    public ResGetUserDTO getUserByUsername(String email) {
+        return this.toGetUserDTO(this.userRepository.findByEmail(email));
     }
 }

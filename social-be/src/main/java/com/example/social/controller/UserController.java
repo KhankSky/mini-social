@@ -8,8 +8,7 @@ import com.example.social.dto.response.filter.ResultPaginationDTO;
 import com.example.social.dto.response.user.ResCreateUserDTO;
 import com.example.social.dto.response.user.ResGetUserDTO;
 import com.example.social.dto.response.user.ResUpdateUserDTO;
-import com.example.social.entity.User;
-import com.example.social.repository.UserRepository;
+import com.example.social.domain.User;
 import com.example.social.service.UserService;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
@@ -24,11 +23,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final UserRepository userRepository;
 
-    public UserController(UserService userService, UserRepository userRepository) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping("/users")

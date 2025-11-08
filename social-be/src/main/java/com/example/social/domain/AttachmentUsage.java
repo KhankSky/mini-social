@@ -1,4 +1,4 @@
-package com.example.social.entity;
+package com.example.social.domain;
 
 public enum AttachmentUsage {
     AVATAR,

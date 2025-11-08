@@ -1,4 +1,4 @@
-package com.example.social.entity;
+package com.example.social.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
