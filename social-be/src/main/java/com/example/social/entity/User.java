@@ -1,6 +1,9 @@
 package com.example.social.entity;
 
+import com.example.social.config.Constants;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -22,12 +25,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50)
     private String username;
 
+    @NotBlank(message = "Password must not be blank")
     @Column(nullable = false)
     private String password;
 
+    @NotBlank(message = "Email must not be blank")
+    @Pattern(regexp = Constants.LOGIN_REGEX, message = "Invalid email")
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
