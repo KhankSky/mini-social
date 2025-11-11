@@ -1,29 +1,36 @@
-<configuration>
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- Kế thừa config mặc định của Spring Boot -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <property name="LOG_FILE" value="${LOG_FILE:-logs/social-be.log}"/>
+    <!-- Cho phép Spring Boot override thông qua application.yml -->
+    <springProperty scope="context" name="LOG_FILE" source="logging.file.name" defaultValue="logs/social-be.log"/>
+    <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
 
-    <!-- 🎨 Console appender có màu sắc -->
+    <!-- 🎨 Console appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <!-- %highlight dùng màu cho level -->
-            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){cyan} %highlight(%-5level) %clr(%logger{36}){yellow} - %msg%n</pattern>
+            <pattern>${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){cyan} %highlight(%-5level) %clr(%logger{36}){yellow} - %msg%n}</pattern>
         </encoder>
     </appender>
 
-    <!-- 🧱 JSON file appender để gửi ELK -->
-    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 🧱 JSON file appender cho ELK -->
+    <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FILE}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>logs/social-be-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        <!-- Encoder JSON dành cho ELK -->
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app_name":"social-be","env":"dev"}</customFields>
+        </encoder>
     </appender>
 
-    <!-- Root logger -->
-    <root level="INFO">
+    <!-- Logger mặc định -->
+    <root level="${LOG_LEVEL}">
         <appender-ref ref="CONSOLE" />
-        <appender-ref ref="JSON_FILE" />
+        <appender-ref ref="FILE_JSON" />
     </root>
 </configuration>
