@@ -37,11 +37,11 @@ services:
     container_name: filebeat-815
     depends_on:
       - logstash
+    user: root
+    command: [ "filebeat", "-e", "--strict.perms=false" ]
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./logs:/usr/share/application/logs:ro
-    user: root
-    command: [ "sh", "-c", "chmod go-w /usr/share/filebeat/filebeat.yml || true && filebeat -e" ]
 
 volumes:
   es_data_815:
