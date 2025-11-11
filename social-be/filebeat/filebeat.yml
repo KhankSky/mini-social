@@ -3,9 +3,15 @@ filebeat.inputs:
     enabled: true
     paths:
       - /usr/share/application/logs/social-be.log
-    json.keys_under_root: true
-    json.add_error_key: true
+
+    # Gộp các dòng không bắt đầu bằng '{' vào dòng trước (stacktraces)
+    multiline.pattern: '^\{'
+    multiline.negate: true
+    multiline.match: after
     scan_frequency: 5s
+
+# Không để Filebeat tự decode JSON ở client để tránh lỗi khi file chứa text + JSON mix.
+# Nếu muốn decode JSON ở client, tất cả dòng trong log phải là JSON thuần.
 
 output.logstash:
   hosts: ["logstash:5044"]
