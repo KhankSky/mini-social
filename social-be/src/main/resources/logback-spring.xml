@@ -3,7 +3,15 @@
 
     <property name="LOG_FILE" value="${LOG_FILE:-logs/social-be.log}"/>
 
-    <!-- JSON file appender -->
+    <!-- 🎨 Console appender có màu sắc -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- %highlight dùng màu cho level -->
+            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){cyan} %highlight(%-5level) %clr(%logger{36}){yellow} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 🧱 JSON file appender để gửi ELK -->
     <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FILE}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -13,13 +21,7 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <!-- Optional: Console appender để in ra terminal -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
+    <!-- Root logger -->
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="JSON_FILE" />
