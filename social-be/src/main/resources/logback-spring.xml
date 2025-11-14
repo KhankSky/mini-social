@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
 
+    <!-- Kế thừa config mặc định của Spring Boot -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <!-- Ghi log vào thư mục logs/ của project BE -->
-    <springProperty scope="context" name="LOG_FILE"
+    <!-- File log chính -->
+    <springProperty scope="context"
+                    name="LOG_FILE"
                     source="logging.file.name"
                     defaultValue="logs/social-be.log"/>
-    <springProperty scope="context" name="LOG_LEVEL"
+
+    <springProperty scope="context"
+                    name="LOG_LEVEL"
                     source="logging.level.root"
                     defaultValue="INFO"/>
 
-    <!-- Console có màu: giữ nguyên -->
+    <!-- 🎨 Console appender: giữ nguyên màu -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
@@ -22,18 +26,25 @@
         </encoder>
     </appender>
 
-    <!-- JSON file appender cho ELK -->
+    <!-- 🧱 JSON file appender CHÍNH (tất cả level, 1 file / ngày) -->
     <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- file đang ghi hiện tại -->
         <file>${LOG_FILE}</file>
+
+        <!-- xoay file THEO NGÀY -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/social-be-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <!-- mỗi ngày 1 file, ví dụ: social-be-2025-11-14.log -->
+            <fileNamePattern>logs/social-be-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- giữ 30 ngày -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
+
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"app_name":"social-be","env":"dev"}</customFields>
         </encoder>
     </appender>
 
+    <!-- Logger mặc định -->
     <root level="${LOG_LEVEL}">
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE_JSON" />
