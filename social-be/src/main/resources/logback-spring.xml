@@ -4,25 +4,41 @@
     <!-- Kế thừa config mặc định của Spring Boot -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <!-- Cho phép Spring Boot override thông qua application.yml -->
-    <springProperty scope="context" name="LOG_FILE" source="logging.file.name" defaultValue="logs/social-be.log"/>
-    <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
+    <!-- File log chính -->
+    <springProperty scope="context"
+                    name="LOG_FILE"
+                    source="logging.file.name"
+                    defaultValue="logs/social-be.log"/>
 
-    <!-- 🎨 Console appender -->
+    <springProperty scope="context"
+                    name="LOG_LEVEL"
+                    source="logging.level.root"
+                    defaultValue="INFO"/>
+
+    <!-- 🎨 Console appender: giữ nguyên màu -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){cyan} %highlight(%-5level) %clr(%logger{36}){yellow} - %msg%n}</pattern>
+            <pattern>
+                ${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint}
+                %clr([%thread]){cyan} %highlight(%-5level)
+                %clr(%logger{36}){yellow} - %msg%n}
+            </pattern>
         </encoder>
     </appender>
 
-    <!-- 🧱 JSON file appender cho ELK -->
+    <!-- 🧱 JSON file appender CHÍNH (tất cả level, 1 file / ngày) -->
     <appender name="FILE_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- file đang ghi hiện tại -->
         <file>${LOG_FILE}</file>
+
+        <!-- xoay file THEO NGÀY -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/social-be-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <!-- mỗi ngày 1 file, ví dụ: social-be-2025-11-14.log -->
+            <fileNamePattern>logs/social-be-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- giữ 30 ngày -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
-        <!-- Encoder JSON dành cho ELK -->
+
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"app_name":"social-be","env":"dev"}</customFields>
         </encoder>
