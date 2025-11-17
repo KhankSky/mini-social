@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/feed/Sidebar.jsx';
 import RightSidebar from '../components/feed/RightSidebar.jsx';
 import ComposeBox from '../components/feed/ComposeBox.jsx';
 import PostCard from '../components/feed/PostCard.jsx';
+import httpClient from '../config/HttpClient';
 
 const samplePosts = [
   {
@@ -30,16 +31,30 @@ const samplePosts = [
 ];
 
 const Feed = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loadMe = async () => {
+      try {
+        const res = await httpClient.get('/auth/me');
+        setUser(res.data);
+      } catch (err) {
+        console.warn('Could not load current user', err);
+      }
+    };
+    loadMe();
+  }, []);
+
   return (
     <div className="max-w-6xl mx-auto px-4">
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12 md:col-span-3">
-          <Sidebar />
+          <Sidebar user={user} />
         </div>
 
         <div className="col-span-12 md:col-span-6">
           <div className="space-y-4">
-            <ComposeBox />
+            <ComposeBox user={user} />
             {samplePosts.map((p) => (
               <PostCard key={p.id} post={p} />
             ))}
