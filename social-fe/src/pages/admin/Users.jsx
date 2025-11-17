@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Button, Modal, Form, Input, Popconfirm, notification } from 'antd';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import UserService from '../../services/user';
 
 const Users = () => {
@@ -17,7 +18,27 @@ const Users = () => {
     setLoading(true);
     try {
       const res = await UserService.list();
-      const data = res?.content ? res.content : res;
+      console.log('UserService.list response:', res);
+      // Normalize backend response to an array for antd Table
+      let data = [];
+      if (Array.isArray(res)) {
+        data = res;
+      } else if (res && Array.isArray(res.result)) {
+        data = res.result;
+      } else if (res && Array.isArray(res.result?.content)) {
+        data = res.result.content;
+      } else if (res && Array.isArray(res.content)) {
+        data = res.content;
+      } else if (res && Array.isArray(res.data)) {
+        data = res.data;
+      } else {
+        // fallback: if result is object but not array, try to extract values
+        if (res && typeof res === 'object') {
+          const maybe = res.result || res.content || res;
+          if (Array.isArray(maybe)) data = maybe;
+        }
+      }
+
       setUsers(data || []);
     } catch (err) {
       console.error(err);
@@ -101,11 +122,13 @@ const Users = () => {
         <Button type="primary" onClick={handleCreate}>New user</Button>
       </div>
 
-      <Table rowKey="id" dataSource={users} columns={columns} loading={loading} />
+      <ErrorBoundary>
+        <Table rowKey="id" dataSource={users} columns={columns} loading={loading} />
+      </ErrorBoundary>
 
       <Modal
         title={editingUser ? 'Edit User' : 'New User'}
-        visible={modalVisible}
+        open={modalVisible}
         onOk={handleOk}
         onCancel={() => setModalVisible(false)}
         destroyOnClose

@@ -20,15 +20,19 @@ httpClient.interceptors.request.use(
         "/auth/token",
         "/auth/refresh",
         "/auth/introspect",
-        "/users",
         "/users/register",
         "/users/forgot-password",
         "/users/reset-password",
       ];
 
-      const requestUrl = config.url || "";
-      // Nếu requestUrl chứa bất kỳ path không cần auth nào, không thêm header
-      const isNoAuth = noAuthPaths.some((p) => requestUrl.includes(p));
+      const requestUrl = (config.url || "").toLowerCase();
+      const method = (config.method || 'get').toLowerCase();
+
+      // Allow unauthenticated access to specific auth endpoints and register endpoints.
+      // Special case: allow POST /users (registration) without token, but require token for other /users calls.
+      const isRegisterPost = method === 'post' && (requestUrl === '/users' || requestUrl.endsWith('/users'));
+
+      const isNoAuth = isRegisterPost || noAuthPaths.some((p) => requestUrl.includes(p));
 
       if (!isNoAuth) {
         config.headers["Authorization"] = `Bearer ${token}`;
@@ -50,14 +54,10 @@ httpClient.interceptors.response.use(
     // Nếu lỗi là 401 và không phải là request refresh token ban đầu
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true; // Đánh dấu đã thử lại
-      console.warn("Token expired or invalid (401). Attempting to handle...");
-      // Xử lý đơn giản: logout
+      console.warn("Token expired or invalid (401). Removing token and rejecting.");
+      // Xử lý đơn giản: logout (xóa token) - nhưng không redirect tự động, để frontend quyết định hành vi
       localStorage.removeItem("social_app_token");
-      // Sử dụng window.location để đảm bảo reload hoàn toàn và state được reset
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
-      return Promise.reject(error); // Quan trọng: reject error sau khi xử lý
+      return Promise.reject(error);
     }
     return Promise.reject(error);
   }
