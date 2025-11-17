@@ -1,149 +1,129 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Table, Button, Modal, Form, Input, Popconfirm, notification } from 'antd';
 import UserService from '../../services/user';
-
-const UserForm = ({ user = {}, onSave, onCancel }) => {
-  const [email, setEmail] = useState(user.email || '');
-  const [username, setUsername] = useState(user.username || '');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const payload = { email, username };
-    if (user.id) payload.id = user.id; // backend may ignore
-    if (password) payload.password = password;
-    onSave(payload);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div>
-        <label className="block text-sm">Email</label>
-        <input value={email} onChange={e=>setEmail(e.target.value)} className="w-full border px-2 py-1 rounded" />
-      </div>
-      <div>
-        <label className="block text-sm">Username</label>
-        <input value={username} onChange={e=>setUsername(e.target.value)} className="w-full border px-2 py-1 rounded" />
-      </div>
-      <div>
-        <label className="block text-sm">Password (leave empty to keep)</label>
-        <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full border px-2 py-1 rounded" />
-      </div>
-      <div className="flex gap-2">
-        <button className="bg-blue-600 text-white px-3 py-1 rounded" type="submit">Save</button>
-        <button type="button" onClick={onCancel} className="px-3 py-1 border rounded">Cancel</button>
-      </div>
-    </form>
-  );
-};
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [form] = Form.useForm();
 
-  const fetchUsers = async () => {
+  const openNotification = (type, message, description) => {
+    notification[type]({ message, description });
+  };
+
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await UserService.list();
-      // backend returns pagination wrapper or list; handle both
       const data = res?.content ? res.content : res;
       setUsers(data || []);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data || 'Failed to load users');
+      openNotification('error', 'Load failed', err.response?.data || 'Failed to load users');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const handleCreate = () => {
-    setEditing(null);
-    setShowForm(true);
+    setEditingUser(null);
+    form.resetFields();
+    setModalVisible(true);
   };
 
-  const handleEdit = (u) => {
-    setEditing(u);
-    setShowForm(true);
+  const handleEdit = (record) => {
+    setEditingUser(record);
+    form.setFieldsValue({ email: record.email, username: record.username });
+    setModalVisible(true);
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this user?')) return;
     try {
       await UserService.remove(id);
+      openNotification('success', 'Deleted', 'User removed');
       fetchUsers();
     } catch (err) {
       console.error(err);
-      setError(err.response?.data || 'Delete failed');
+      openNotification('error', 'Delete failed', err.response?.data || 'Could not delete user');
     }
   };
 
-  const handleSave = async (payload) => {
+  const handleOk = async () => {
     try {
-      if (editing) {
+      const values = await form.validateFields();
+      if (editingUser) {
+        const payload = { ...editingUser, ...values };
         await UserService.update(payload);
+        openNotification('success', 'Updated', 'User updated successfully');
       } else {
-        await UserService.create(payload);
+        await UserService.create(values);
+        openNotification('success', 'Created', 'User created successfully');
       }
-      setShowForm(false);
+      setModalVisible(false);
       fetchUsers();
     } catch (err) {
       console.error(err);
-      setError(err.response?.data || 'Save failed');
+      if (err.errorFields) {
+        // validation error from form, ignore
+      } else {
+        openNotification('error', 'Save failed', err.response?.data || 'Could not save user');
+      }
     }
   };
+
+  const columns = [
+    { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Username', dataIndex: 'username', key: 'username' },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 200,
+      render: (_, record) => (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button onClick={() => handleEdit(record)}>Edit</Button>
+          <Popconfirm title="Delete this user?" onConfirm={() => handleDelete(record.id)}>
+            <Button danger>Delete</Button>
+          </Popconfirm>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <h1 className="text-xl font-semibold">Users</h1>
-        <div>
-          <button onClick={handleCreate} className="bg-blue-600 text-white px-3 py-1 rounded">New user</button>
-        </div>
+        <Button type="primary" onClick={handleCreate}>New user</Button>
       </div>
 
-      {error && <div className="text-red-600 mb-3">{String(error)}</div>}
+      <Table rowKey="id" dataSource={users} columns={columns} loading={loading} />
 
-      {showForm && (
-        <div className="mb-4 bg-white p-4 rounded shadow">
-          <UserForm user={editing} onSave={handleSave} onCancel={() => setShowForm(false)} />
-        </div>
-      )}
+      <Modal
+        title={editingUser ? 'Edit User' : 'New User'}
+        visible={modalVisible}
+        onOk={handleOk}
+        onCancel={() => setModalVisible(false)}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" initialValues={{ email: '', username: '' }}>
+          <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please input email' }, { type: 'email', message: 'Invalid email' }]}>
+            <Input />
+          </Form.Item>
 
-      <div className="bg-white rounded shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Email</th>
-              <th className="p-2 text-left">Username</th>
-              <th className="p-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={4} className="p-4">Loading...</td></tr>
-            ) : users.length === 0 ? (
-              <tr><td colSpan={4} className="p-4">No users</td></tr>
-            ) : users.map(u => (
-              <tr key={u.id} className="border-t">
-                <td className="p-2">{u.id}</td>
-                <td className="p-2">{u.email}</td>
-                <td className="p-2">{u.username}</td>
-                <td className="p-2">
-                  <div className="flex gap-2">
-                    <button onClick={() => handleEdit(u)} className="px-2 py-1 border rounded">Edit</button>
-                    <button onClick={() => handleDelete(u.id)} className="px-2 py-1 border rounded text-red-600">Delete</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <Form.Item name="username" label="Username">
+            <Input />
+          </Form.Item>
+
+          <Form.Item name="password" label="Password" rules={[{ min: 6, message: 'Password must be at least 6 characters' }]}>
+            <Input.Password placeholder={editingUser ? 'Leave empty to keep current password' : ''} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
