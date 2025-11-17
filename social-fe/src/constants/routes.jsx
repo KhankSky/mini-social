@@ -1,5 +1,7 @@
 import DefaultLayout from "../layouts/DefaultLayout.jsx";
 import Feed from "../pages/Feed.jsx";
+import Login from "../pages/Login.jsx";
+import Register from "../pages/Register.jsx";
 
 export const routes = [
   {
@@ -11,5 +13,13 @@ export const routes = [
         element: <Feed />,
       },
     ],
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
   },
 ];

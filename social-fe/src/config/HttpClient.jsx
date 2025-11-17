@@ -15,22 +15,22 @@ httpClient.interceptors.request.use(
     const token = localStorage.getItem("social_app_token");
     if (token) {
       // Các endpoints không cần gửi token
-      const noAuthEndpoints = [
+      const noAuthPaths = [
+        "/auth/login",
         "/auth/token",
         "/auth/refresh",
-        "/auth/introspect", // Introspect có thể cần token, tùy vào logic backend của bạn
+        "/auth/introspect",
+        "/users",
         "/users/register",
         "/users/forgot-password",
         "/users/reset-password",
       ];
 
-      // Kiểm tra xem URL của request có nằm trong danh sách noAuthEndpoints không
-      // Lưu ý: config.url có thể là URL đầy đủ hoặc chỉ là path.
-      // Cần đảm bảo logic kiểm tra này chính xác.
-      const requestPath = config.url.replace(config.baseURL, "");
-      const isAuthEndpoint = noAuthEndpoints.some(endpoint => requestPath.startsWith(endpoint));
+      const requestUrl = config.url || "";
+      // Nếu requestUrl chứa bất kỳ path không cần auth nào, không thêm header
+      const isNoAuth = noAuthPaths.some((p) => requestUrl.includes(p));
 
-      if (!isAuthEndpoint) {
+      if (!isNoAuth) {
         config.headers["Authorization"] = `Bearer ${token}`;
       }
     }
@@ -52,7 +52,7 @@ httpClient.interceptors.response.use(
       originalRequest._retry = true; // Đánh dấu đã thử lại
       console.warn("Token expired or invalid (401). Attempting to handle...");
       // Xử lý đơn giản: logout
-      localStorage.removeItem("social_app_token");q
+      localStorage.removeItem("social_app_token");
       // Sử dụng window.location để đảm bảo reload hoàn toàn và state được reset
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
