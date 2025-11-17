@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import com.example.social.security.SecurityUtils;
 
 @RestController
 @RequestMapping("/api")
@@ -45,5 +47,15 @@ public class AuthenticateController {
         ResGetUserDTO userDB = this.userService.getUserByUsername(reqLogin.getUsername());
         String jwt = this.authenticateService.createToken(reqLogin.getUsername(), userDB);
         return ResponseEntity.ok(jwt);
+    }
+
+    @GetMapping("/auth/me")
+    public ResponseEntity<ResGetUserDTO> me() {
+        String username = SecurityUtils.getCurrentUserLogin().orElse(null);
+        if (username == null) {
+            return ResponseEntity.status(401).build();
+        }
+        ResGetUserDTO user = this.userService.getUserByUsername(username);
+        return ResponseEntity.ok(user);
     }
 }

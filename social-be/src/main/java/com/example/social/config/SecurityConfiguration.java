@@ -32,6 +32,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/api/auth/**", "/ws/**").permitAll()
                         .anyRequest().authenticated())
+                        .requestMatchers("/", "/api/auth/**").permitAll()
+//                        .anyRequest().authenticated())
+                        .anyRequest().permitAll()) // - cho phép tất cả các yêu cầu test thử cái
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(authenticationEntryPoint))
 
