@@ -30,6 +30,8 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/", "/api/auth/**", "/ws/**").permitAll()
+                        .anyRequest().authenticated())
                         .requestMatchers("/", "/api/auth/**").permitAll()
 //                        .anyRequest().authenticated())
                         .anyRequest().permitAll()) // - cho phép tất cả các yêu cầu test thử cái
