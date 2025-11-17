@@ -2,8 +2,8 @@ import React from 'react';
 
 const Feed = () => {
   return (
-    <div>
-      
+    <div className={'text-2xl text-violet-500'}>
+      feed page
     </div>
   );
 };
