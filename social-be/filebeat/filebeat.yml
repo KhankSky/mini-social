@@ -1,0 +1,17 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /usr/share/application/logs/social-be.log
+
+    multiline.pattern: '^\{'
+    multiline.negate: true
+    multiline.match: after
+    scan_frequency: 5s
+
+output.logstash:
+  hosts: ["logstash:5044"]
+  ssl.enabled: false
+
+setup.kibana:
+  host: "kibana:5601"

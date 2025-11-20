@@ -30,8 +30,9 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/api/auth/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/", "/api/auth/**", "/ws/**").permitAll()
+//                        .anyRequest().authenticated()) // dùng nếu như muốn xác thực các api còn lại
+                        .anyRequest().permitAll()) // - cho phép tất cả các yêu cầu
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(authenticationEntryPoint))
 
