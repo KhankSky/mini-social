@@ -44,6 +44,9 @@ public class AuthenticateController {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // Update last login time
+        this.userService.updateLastLogin(reqLogin.getUsername());
+        
         ResGetUserDTO userDB = this.userService.getUserByUsername(reqLogin.getUsername());
         String jwt = this.authenticateService.createToken(reqLogin.getUsername(), userDB);
         return ResponseEntity.ok(jwt);

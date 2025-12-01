@@ -37,6 +37,12 @@ public class UserService {
         if(this.userRepository.existsByEmail(reqUser.getEmail())){
             throw new ResourceAlreadyExistsException("User with email " + reqUser.getEmail() + " already exists");
         }
+        
+        // Check duplicate username
+        if(reqUser.getUsername() != null && !reqUser.getUsername().isEmpty() 
+                && this.userRepository.existsByUsername(reqUser.getUsername())){
+            throw new ResourceAlreadyExistsException("User with username " + reqUser.getUsername() + " already exists");
+        }
 
         User user = User.builder()
                 .username(reqUser.getUsername())
@@ -133,5 +139,13 @@ public class UserService {
 
     public ResGetUserDTO getUserByUsername(String email) {
         return this.toGetUserDTO(this.userRepository.findByEmail(email));
+    }
+    
+    public void updateLastLogin(String email) {
+        User user = this.userRepository.findByEmail(email);
+        if (user != null) {
+            user.setLastLogin(LocalDateTime.now());
+            this.userRepository.save(user);
+        }
     }
 }
