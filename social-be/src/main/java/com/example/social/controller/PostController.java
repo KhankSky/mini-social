@@ -23,11 +23,11 @@ public class PostController {
         this.postService = postService;
     }
     
-    // Đăng bài viết với ảnh
+    // Đăng bài viết: cho phép chỉ text hoặc text + ảnh
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResCreatePostDTO> createPost(
             @RequestPart(value = "content", required = false) String content,
-            @RequestPart(value = "images", required = true) List<org.springframework.web.multipart.MultipartFile> images) throws IOException, ResourceNotFoundException {
+            @RequestPart(value = "images", required = false) List<org.springframework.web.multipart.MultipartFile> images) throws IOException, ResourceNotFoundException {
         
         ReqCreatePostDTO reqPost = ReqCreatePostDTO.builder()
                 .content(content)

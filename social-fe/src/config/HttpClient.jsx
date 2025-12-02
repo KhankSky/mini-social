@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_BASE_URL ="http://localhost:9090/api";
+export const API_BASE_URL = "http://localhost:9090/api";
+// Origin server của backend, dùng để build URL ảnh (uploads)
+export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, "");
 
 const httpClient = axios.create({
   baseURL: API_BASE_URL,
