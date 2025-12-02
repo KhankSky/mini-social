@@ -11,6 +11,7 @@ import com.example.social.dto.response.user.ResGetUserDTO;
 import com.example.social.dto.response.user.ResUpdateUserDTO;
 import com.example.social.domain.User;
 import com.example.social.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -33,14 +35,17 @@ public class UserService {
     }
 
     public ResCreateUserDTO createUser(ReqCreateUserDTO reqUser) throws ResourceAlreadyExistsException {
+        log.info("Request to create user with email: {}", reqUser.getEmail());
         // Check duplicate email
         if(this.userRepository.existsByEmail(reqUser.getEmail())){
+            log.warn("User creation failed: Email {} already exists", reqUser.getEmail());
             throw new ResourceAlreadyExistsException("User with email " + reqUser.getEmail() + " already exists");
         }
         
         // Check duplicate username
         if(reqUser.getUsername() != null && !reqUser.getUsername().isEmpty() 
                 && this.userRepository.existsByUsername(reqUser.getUsername())){
+            log.warn("User creation failed: Username {} already exists", reqUser.getUsername());
             throw new ResourceAlreadyExistsException("User with username " + reqUser.getUsername() + " already exists");
         }
 
@@ -53,6 +58,7 @@ public class UserService {
                 .build();
 
         User savedUser = this.userRepository.save(user);
+        log.info("User created successfully with ID: {}", savedUser.getId());
 
         return ResCreateUserDTO.builder()
                 .id(savedUser.getId())
@@ -65,8 +71,12 @@ public class UserService {
     }
 
     public ResUpdateUserDTO updateUser(ReqUpdateUserDTO reqUser) throws ResourceNotFoundException {
+        log.info("Request to update user with ID: {}", reqUser.getId());
         User userDB = userRepository.findById(reqUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id = " + reqUser.getId()));
+                .orElseThrow(() -> {
+                    log.error("User update failed: User not found with id = {}", reqUser.getId());
+                    return new ResourceNotFoundException("User not found with id = " + reqUser.getId());
+                });
 
         if (reqUser.getUsername() != null) {
             userDB.setUsername(reqUser.getUsername());
@@ -81,6 +91,7 @@ public class UserService {
         }
 
         User userSaved = userRepository.save(userDB);
+        log.info("User updated successfully: {}", userSaved.getUsername());
 
         return ResUpdateUserDTO.builder()
                 .id(userSaved.getId())
@@ -92,6 +103,7 @@ public class UserService {
     }
 
     public ResultPaginationDTO getAllUsers(Specification<User> spec, Pageable pageable) {
+        log.debug("Fetching all users with pagination: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         Page<User> users = this.userRepository.findAll(spec, pageable);
 
         Pagination pagination = new Pagination();
@@ -124,20 +136,25 @@ public class UserService {
     }
 
     public ResGetUserDTO getUserById(Long id) throws ResourceNotFoundException {
-
+        log.debug("Fetching user by ID: {}", id);
         User userDB = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id = " + id));
         return toGetUserDTO(userDB);
     }
 
     public void deleteUserById(Long id) throws ResourceNotFoundException {
-
+        log.info("Request to delete user with ID: {}", id);
         User userDB = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id = " + id));
+                .orElseThrow(() -> {
+                    log.error("Delete failed: User not found with id = {}", id);
+                    return new ResourceNotFoundException("User not found with id = " + id);
+                });
         userRepository.delete(userDB);
+        log.info("User deleted successfully with ID: {}", id);
     }
 
     public ResGetUserDTO getUserByUsername(String email) {
+        log.debug("Fetching user by email: {}", email);
         return this.toGetUserDTO(this.userRepository.findByEmail(email));
     }
     
@@ -146,6 +163,7 @@ public class UserService {
         if (user != null) {
             user.setLastLogin(LocalDateTime.now());
             this.userRepository.save(user);
+            log.debug("Updated last login for user: {}", email);
         }
     }
 }

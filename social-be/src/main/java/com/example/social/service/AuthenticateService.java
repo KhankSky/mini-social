@@ -2,6 +2,7 @@ package com.example.social.service;
 
 import com.example.social.dto.response.user.ResGetUserDTO;
 import com.example.social.security.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+@Slf4j
 @Service
 public class AuthenticateService {
 
@@ -26,7 +28,7 @@ public class AuthenticateService {
     }
 
     public String createToken(String email, ResGetUserDTO userDB) {
-
+        log.info("Creating token for user: {}", email);
         Instant now = Instant.now();
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
 
@@ -39,6 +41,8 @@ public class AuthenticateService {
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(SecurityUtils.JWT_ALGORITHM).build();
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+        String token = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+        log.debug("Token created successfully for user: {}", email);
+        return token;
     }
 }
