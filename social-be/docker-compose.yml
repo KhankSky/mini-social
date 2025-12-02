@@ -44,20 +44,20 @@ services:
       # 👇 ĐƯỜNG DẪN HOST THẬT ĐẾN THƯ MỤC logs CỦA BE
       - "F:/Khank_Sky/HAU/DoAn/mangmt/mini-social/social-be/logs:/usr/share/application/logs:ro"
 
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-8
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: "123456"
-      MYSQL_DATABASE: "social"
-      MYSQL_USER: "root"
-      MYSQL_PASSWORD: "123456"
-    ports:
-      - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
-    volumes:
-      - mysql_data:/var/lib/mysql
+#  mysql:
+#    image: mysql:8.0
+#    container_name: mysql-8
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: "123456"
+#      MYSQL_DATABASE: "social"
+#      MYSQL_USER: "root"
+#      MYSQL_PASSWORD: "123456"
+#    ports:
+#      - "3306:3306"
+#    command: --default-authentication-plugin=mysql_native_password
+#    volumes:
+#      - mysql_data:/var/lib/mysql
 
 volumes:
   es_data_815:
