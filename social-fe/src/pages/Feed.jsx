@@ -4,34 +4,13 @@ import RightSidebar from '../components/feed/RightSidebar.jsx';
 import ComposeBox from '../components/feed/ComposeBox.jsx';
 import PostCard from '../components/feed/PostCard.jsx';
 import httpClient from '../config/HttpClient';
+import { fetchPosts } from '../services/post';
 
-const samplePosts = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    avatar: '/uploads/default-avatar.png',
-    time: '2h',
-    position: 'Software Engineer • MiniSocial',
-    content: 'Today I learned how to build a LinkedIn-like UI with React and Tailwind. Sharing a small demo!',
-    image: '',
-    likes: 12,
-    comments: 3,
-  },
-  {
-    id: 2,
-    name: 'Trần Thị B',
-    avatar: '/uploads/default-avatar.png',
-    time: '1d',
-    position: 'Frontend Developer',
-    content: 'Check out this UI kit for social feeds — makes prototyping fast.',
-    image: '',
-    likes: 8,
-    comments: 1,
-  },
-];
+const PAGE_SIZE = 10;
 
 const Feed = () => {
   const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const loadMe = async () => {
@@ -45,6 +24,24 @@ const Feed = () => {
     loadMe();
   }, []);
 
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const res = await fetchPosts(1, PAGE_SIZE);
+        const { result } = res.data || {};
+        setPosts(result || []);
+      } catch (err) {
+        console.error('Failed to load posts', err);
+      }
+    };
+
+    loadPosts();
+  }, []);
+
+  const handlePostCreated = (newPost) => {
+    setPosts((prev) => [newPost, ...prev]);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4">
       <div className="grid grid-cols-12 gap-6">
@@ -54,8 +51,8 @@ const Feed = () => {
 
         <div className="col-span-12 md:col-span-6">
           <div className="space-y-4">
-            <ComposeBox user={user} />
-            {samplePosts.map((p) => (
+            <ComposeBox user={user} onPostCreated={handlePostCreated} />
+            {posts.map((p) => (
               <PostCard key={p.id} post={p} />
             ))}
           </div>
