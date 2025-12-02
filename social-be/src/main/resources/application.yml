@@ -1,0 +1,36 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: social
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/social
+    username: root
+    password: 123456
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  # config page start one (default is zero)
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+      resources:
+        static-locations: file:uploads/
+        add-mappings: true
+
+# jwt config
+security:
+  authentication:
+    jwt:
+      base64-secret: "vmAQYNL5dUVxhXl6YljoLbxbsVaWJan7B+a0E5u0jiw6h2fx9AvFqzsV7kGw3xa2FPRS3zPfq+Y1CUfe+VV0Ig=="
+      token-validity-in-seconds: 360000
+
+file:
+  upload-dir: uploads
