@@ -4,6 +4,7 @@ import com.example.social.controller.error.ResourceNotFoundException;
 import com.example.social.domain.Attachment;
 import com.example.social.domain.AttachmentUsage;
 import com.example.social.domain.Post;
+import com.example.social.domain.PostPrivacy;
 import com.example.social.domain.User;
 import com.example.social.dto.request.post.ReqCreatePostDTO;
 import com.example.social.dto.response.filter.Pagination;
@@ -16,7 +17,6 @@ import com.example.social.repository.UserRepository;
 import com.example.social.security.SecurityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,9 +56,12 @@ public class PostService {
         }
         
         // Tạo Post
+        PostPrivacy privacy = reqPost.getPrivacy() != null ? reqPost.getPrivacy() : PostPrivacy.PUBLIC;
         Post post = Post.builder()
                 .content(reqPost.getContent())
                 .user(user)
+                .privacy(privacy)
+                .location(reqPost.getLocation())
                 .build();
         
         Post savedPost = postRepository.save(post);
@@ -100,6 +103,8 @@ public class PostService {
                 .username(user.getUsername())
                 .userAvatarUrl(user.getAvatarUrl())
                 .attachments(attachmentDTOs)
+                .privacy(savedPost.getPrivacy())
+                .location(savedPost.getLocation())
                 .createdAt(savedPost.getCreatedAt())
                 .updatedAt(savedPost.getUpdatedAt())
                 .build();
@@ -161,6 +166,8 @@ public class PostService {
                 .username(post.getUser().getUsername())
                 .userAvatarUrl(post.getUser().getAvatarUrl())
                 .attachments(attachmentDTOs)
+                .privacy(post.getPrivacy())
+                .location(post.getLocation())
                 .likeCount((long) post.getLikes().size())
                 .commentCount((long) post.getComments().size())
                 .createdAt(post.getCreatedAt())

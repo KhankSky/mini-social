@@ -1,8 +1,7 @@
 package com.example.social.dto.request.post;
 
-import jakarta.validation.constraints.NotEmpty;
+import com.example.social.domain.PostPrivacy;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,8 +12,11 @@ import java.util.List;
 @Builder
 public class ReqCreatePostDTO {
     
-    private String content; // Nội dung bài viết (có thể null nếu chỉ có ảnh)
+    private String content; 
     
-    @NotEmpty(message = "At least one image is required")
-    private List<MultipartFile> images; // Danh sách ảnh
+    private List<org.springframework.web.multipart.MultipartFile> images; 
+    
+    private PostPrivacy privacy;
+    
+    private String location; 
 }

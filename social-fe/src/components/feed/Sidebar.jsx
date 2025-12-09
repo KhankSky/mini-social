@@ -1,37 +1,63 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { API_ORIGIN } from '../../config/HttpClient';
+
+const resolveImageUrl = (url) => {
+  if (!url) return 'https://api.dicebear.com/7.x/avataaars/svg?seed=User';
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (url.startsWith("/")) return `${API_ORIGIN}${url}`;
+  return `${API_ORIGIN}/${url}`;
+};
 
 const Sidebar = ({ user }) => {
-  const avatar = user && (user.avatar || user.avatarUrl || user.photo) ? (user.avatar || user.avatarUrl || user.photo) : '/default-avatar.png';
-  const name = user && (user.fullName || user.name || user.username) ? (user.fullName || user.name || user.username) : 'Nguyen Van A';
-  const title = user && (user.title || user.job || user.role) ? (user.title || user.job || user.role) : 'Software Engineer';
-  const bio = user && (user.bio || user.description) ? (user.bio || user.description) : 'This is a short bio about the user. Add something interesting here.';
+  const avatar = user ? resolveImageUrl(user.avatar || user.avatarUrl || user.photo) : 'https://api.dicebear.com/7.x/avataaars/svg?seed=User';
+  const name = user && (user.fullName || user.name || user.username) ? (user.fullName || user.name || user.username) : 'Bogdan Nikitin';
+  const username = user && user.username ? `@${user.username}` : '@nikitinteam';
 
   return (
-    <aside>
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-        <div className="flex items-center gap-3">
-          <img src={avatar} alt="avatar" className="w-12 h-12 rounded-full object-cover" />
-          <div>
-            <div className="font-medium">{name}</div>
-            <div className="text-xs text-gray-500">{title}</div>
-          </div>
-        </div>
-        <div className="mt-3 text-sm">
-          <Link to="/profile" className="text-blue-600 hover:underline">View profile</Link>
+    <>
+      <div className="flex items-center gap-4 mb-8">
+        <img 
+          src={avatar} 
+          alt={name}
+          className="w-16 h-16 rounded-full object-cover"
+        />
+        <div className="flex-1">
+          <div className="font-bold">{name}</div>
+          <div className="text-sm text-gray-500">{username}</div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <h4 className="font-medium">My Items</h4>
-        <ul className="mt-3 text-sm text-gray-600 space-y-2">
-          <li><Link to="/saved" className="hover:text-blue-600">Saved</Link></li>
-          <li><Link to="/groups" className="hover:text-blue-600">Groups</Link></li>
-          <li><Link to="/events" className="hover:text-blue-600">Events</Link></li>
-        </ul>
-      </div>
-    </aside>
+      <nav className="space-y-2 flex-1">
+        <Link to="/feed" className="w-full flex items-center gap-3 px-4 py-3 bg-black text-white rounded-full">
+          <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-xs">📰</div>
+          <span>News Feed</span>
+        </Link>
+        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full relative">
+          <span className="text-xl">✉️</span>
+          <span>Messages</span>
+          <span className="ml-auto bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">6</span>
+        </button>
+        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
+          <span className="text-xl">🔔</span>
+          <span>Notifications</span>
+        </button>
+        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full relative">
+          <span className="text-xl">👥</span>
+          <span>Friends</span>
+          <span className="ml-auto bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+        </button>
+        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
+          <span className="text-xl">🔍</span>
+          <span>Search</span>
+        </button>
+        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
+          <span className="text-xl">⚙️</span>
+          <span>Settings</span>
+        </button>
+      </nav>
+    </>
   );
 };
 
-export default Sidebar;
+export default Sidebar; 

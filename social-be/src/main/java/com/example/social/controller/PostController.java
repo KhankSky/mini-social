@@ -27,24 +27,39 @@ public class PostController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResCreatePostDTO> createPost(
             @RequestPart(value = "content", required = false) String content,
-            @RequestPart(value = "images", required = false) List<org.springframework.web.multipart.MultipartFile> images) throws IOException, ResourceNotFoundException {
+            @RequestPart(value = "images", required = false) List<org.springframework.web.multipart.MultipartFile> images,
+            @RequestPart(value = "privacy", required = false) String privacy,
+            @RequestPart(value = "location", required = false) String location) throws IOException, ResourceNotFoundException {
+        
+        com.example.social.domain.PostPrivacy privacyEnum = null;
+        if (privacy != null && !privacy.isEmpty()) {
+            try {
+                privacyEnum = com.example.social.domain.PostPrivacy.valueOf(privacy.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                privacyEnum = com.example.social.domain.PostPrivacy.PUBLIC;
+            }
+        } else {
+            privacyEnum = com.example.social.domain.PostPrivacy.PUBLIC;
+        }
         
         ReqCreatePostDTO reqPost = ReqCreatePostDTO.builder()
                 .content(content)
                 .images(images)
+                .privacy(privacyEnum)
+                .location(location)
                 .build();
         
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(postService.createPost(reqPost));
     }
     
-    // Lấy tất cả bài viết (theo thời gian)
+
     @GetMapping
     public ResponseEntity<ResultPaginationDTO> getAllPosts(Pageable pageable) {
         return ResponseEntity.ok(postService.getAllPosts(pageable));
     }
     
-    // Lấy bài viết của bạn bè
+
     @GetMapping("/friends")
     public ResponseEntity<ResultPaginationDTO> getFriendsPosts(
             @RequestParam List<Long> friendIds,
@@ -52,7 +67,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getFriendsPosts(friendIds, pageable));
     }
     
-    // Lấy bài viết của một user
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<ResultPaginationDTO> getUserPosts(
             @PathVariable Long userId,

@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { FiThumbsUp, FiMessageCircle, FiShare2 } from 'react-icons/fi';
 import { fetchComments, createComment } from '../../services/comment';
 import { API_ORIGIN } from '../../config/HttpClient';
 
-const resolveImageUrl = (url) => {
-  if (!url) return "";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/")) return `${API_ORIGIN}${url}`;
-  return `${API_ORIGIN}/${url}`;
+const resolveImageUrl = (url, fallback = '') => {
+  if (!url || url.trim().length === 0) return fallback;
+  const trimmed = url.trim();
+  
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  
+
+  if (trimmed.startsWith('//')) {
+    return `https:${trimmed}`;
+  }
+  
+
+  if (trimmed.startsWith('/')) {
+    return `${API_ORIGIN}${trimmed}`;
+  }
+  
+
+  return `${API_ORIGIN}/uploads/${trimmed}`;
 };
 
-const buildGalleryLayout = (attachments) => {
+const buildGalleryLayout = (attachments, reactions) => {
   const images = attachments || [];
   const count = images.length;
   if (count === 0) return null;
@@ -20,65 +35,66 @@ const buildGalleryLayout = (attachments) => {
       key={img.id || img.fileUrl}
       src={resolveImageUrl(img.fileUrl)}
       alt={img.fileName || 'image'}
-      className={`w-full h-full object-cover ${extraClass}`}
+      className={`w-full h-full object-cover rounded-2xl ${extraClass}`}
     />
   );
 
-  if (count === 1) {
+  // For new UI, use grid-cols-3 layout
+  if (count >= 3) {
+    const visibleImages = images.slice(0, 3);
     return (
-      <div className="mt-3 rounded-lg overflow-hidden">
-        {renderImage(images[0], 'max-h-[500px]')}
+      <div className="grid grid-cols-3 gap-2 mb-4 relative">
+        {visibleImages.map((img, i) => (
+          <div key={img.id || img.fileUrl} className="relative">
+            {renderImage(img, 'h-48')}
+          </div>
+        ))}
+        {reactions && reactions.length > 0 && (
+          <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur rounded-full px-3 py-2 flex gap-1">
+            {reactions.map((emoji, i) => (
+              <span key={i} className="text-lg">{emoji}</span>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
 
   if (count === 2) {
     return (
-      <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg overflow-hidden max-h-[400px]">
+      <div className="grid grid-cols-2 gap-2 mb-4 relative">
         {images.map((img) => (
           <div key={img.id || img.fileUrl} className="relative">
-            {renderImage(img)}
+            {renderImage(img, 'h-48')}
           </div>
         ))}
-      </div>
-    );
-  }
-
-  if (count === 3) {
-    return (
-      <div className="mt-3 grid grid-rows-2 gap-1 rounded-lg overflow-hidden max-h-[450px]">
-        <div className="row-span-1">
-          {renderImage(images[0])}
-        </div>
-        <div className="grid grid-cols-2 gap-1 row-span-1">
-          {images.slice(1).map((img) => (
-            <div key={img.id || img.fileUrl}>{renderImage(img)}</div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  const visibleImages = images.slice(0, 4);
-  const remaining = count - 4;
-
-  return (
-    <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg overflow-hidden max-h-[450px]">
-      {visibleImages.map((img, index) => {
-        const isLast = index === 3 && remaining > 0;
-        return (
-          <div key={img.id || img.fileUrl} className="relative">
-            {renderImage(img)}
-            {isLast && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <span className="text-white font-semibold text-lg">+{remaining} xem thêm</span>
-              </div>
-            )}
+        {reactions && reactions.length > 0 && (
+          <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur rounded-full px-3 py-2 flex gap-1">
+            {reactions.map((emoji, i) => (
+              <span key={i} className="text-lg">{emoji}</span>
+            ))}
           </div>
-        );
-      })}
-    </div>
-  );
+        )}
+      </div>
+    );
+  }
+
+  if (count === 1) {
+    return (
+      <div className="mb-4 relative">
+        {renderImage(images[0], 'h-48 rounded-2xl')}
+        {reactions && reactions.length > 0 && (
+          <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur rounded-full px-3 py-2 flex gap-1">
+            {reactions.map((emoji, i) => (
+              <span key={i} className="text-lg">{emoji}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return null;
 };
 
 const CommentItem = ({ comment, onReply }) => {
@@ -221,107 +237,147 @@ const PostCard = ({ post }) => {
     setComments((prev) => addReply(prev));
   };
 
-  const attachments = post.attachments || [];
+  // Ưu tiên lấy danh sách attachments từ API (database).
+  // Nếu không có, fallback sang imageUrl (trường cũ) để hiển thị ảnh đơn.
+  const attachments = (post.attachments && post.attachments.length > 0)
+    ? post.attachments
+    : (post.imageUrl
+        ? [{ id: post.id || 'imageUrl', fileUrl: post.imageUrl, fileName: 'image' }]
+        : []);
   const likeCount = post.likeCount ?? 0;
   const commentCount = post.commentCount ?? comments.length;
+ 
+  
+
+  const bgClass = post.content && post.content.includes('mountain') ? 'bg-blue-100' : 
+                  post.content && post.content.includes('coffee') ? 'bg-amber-50' : 
+                  'bg-white';
+  
+
+  const reactions = attachments.length > 0 ? ['🔥', '😍', '😱', '👍', '❤️'] : null;
+
+
+  const extractTags = (content) => {
+    if (!content) return [];
+    const tagMatches = content.match(/@(\w+)/g);
+    return tagMatches ? tagMatches.map(tag => tag.substring(1)) : [];
+  };
+  const tags = extractTags(post.content);
+
+
+  const getTimeAgo = (dateString) => {
+    if (!dateString) return '2 hours ago';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    if (diffHours < 1) return 'Just now';
+    if (diffHours === 1) return '1 hour ago';
+    return `${diffHours} hours ago`;
+  };
 
   return (
-    <article className="bg-white rounded-lg shadow-sm p-4">
-      <header className="flex items-start gap-3">
-        <img
-          src={resolveImageUrl(post.userAvatarUrl || '/uploads/default-avatar.png')}
-          alt="avatar"
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium text-gray-800">{post.username}</h3>
-            {post.createdAt && (
-              <span className="text-xs text-gray-500">
-                · {new Date(post.createdAt).toLocaleString()}
-              </span>
+    <article className={`${bgClass} rounded-3xl p-6 mb-6`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={resolveImageUrl(
+              post.userAvatarUrl,
+              'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (post.username || 'User')
             )}
-          </div>
-        </div>
-      </header>
-
-      {post.content && <div className="mt-3 text-gray-800 text-sm whitespace-pre-line">{post.content}</div>}
-
-      {attachments.length > 0 && buildGalleryLayout(attachments)}
-
-      <footer className="mt-3">
-        <div className="flex items-center justify-between text-gray-600 text-sm">
-          <div className="flex items-center gap-6">
+            alt={post.username || 'User'}
+            className="w-12 h-12 rounded-full"
+          />
+          <div>
             <div className="flex items-center gap-2">
-              <FiThumbsUp />
-              <span>{likeCount}</span>
+              <span className="font-bold">{post.username || 'User'}</span>
+              {post.privacy && (
+                <span className="text-xs text-gray-500">
+                  {post.privacy === 'PUBLIC' ? '🌐' : '👥'}
+                </span>
+              )}
             </div>
-            <button
-              type="button"
-              className="flex items-center gap-2"
-              onClick={handleToggleComments}
-            >
-              <FiMessageCircle />
-              <span>
-                {commentCount} bình luận
-              </span>
-            </button>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
-              <FiThumbsUp />
-              <span className="hidden sm:inline">Thích</span>
-            </button>
-            <button
-              className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
-              type="button"
-              onClick={handleToggleComments}
-            >
-              <FiMessageCircle />
-              <span className="hidden sm:inline">Bình luận</span>
-            </button>
-            <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
-              <FiShare2 />
-              <span className="hidden sm:inline">Chia sẻ</span>
-            </button>
+            <div className="text-sm text-gray-500">{getTimeAgo(post.createdAt)}</div>
           </div>
         </div>
+        <button className="p-2 hover:bg-white/50 rounded-full">
+          <span className="text-xl">⋮</span>
+        </button>
+      </div>
 
-        {showComments && (
-          <div className="mt-3 border-t pt-3">
-            <div className="flex items-start gap-2">
-              <input
-                type="text"
-                className="flex-1 rounded-full border px-3 py-1 text-sm"
-                placeholder="Viết bình luận..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={handleCreateComment}
-                disabled={submittingComment || !newComment.trim()}
-                className="text-sm px-3 py-1 rounded-full bg-blue-600 text-white disabled:bg-blue-300"
-              >
-                Gửi
-              </button>
-            </div>
+      {post.content && (
+        <p className="mb-4 leading-relaxed">
+          {post.content}
+          {tags.map((tag, i) => (
+            <span key={i} className="text-blue-600 ml-1">@{tag}</span>
+          ))}
+          {post.content.includes('mountain') && '!'}
+        </p>
+      )}
 
-            {loadingComments ? (
-              <p className="mt-2 text-xs text-gray-500">Đang tải bình luận...</p>
-            ) : (
-              <div className="mt-2">
-                {comments.map((c) => (
-                  <CommentItem key={c.id} comment={c} onReply={handleReply} />
-                ))}
-                {comments.length === 0 && (
-                  <p className="mt-2 text-xs text-gray-400">Chưa có bình luận nào, hãy là người đầu tiên!</p>
-                )}
-              </div>
-            )}
-          </div>
+      {post.location && (
+        <div className="mb-4 flex items-center gap-2 text-gray-600">
+          <span className="text-lg">📍</span>
+          <span className="text-sm">{post.location}</span>
+        </div>
+      )}
+
+      {attachments.length > 0 && buildGalleryLayout(attachments, reactions)}
+
+      <div className="flex items-center gap-6 text-gray-600">
+        <button className="flex items-center gap-2 hover:text-red-500">
+          <span className="text-lg">❤️</span>
+          <span>Like</span>
+        </button>
+        <button 
+          className="flex items-center gap-2 hover:text-blue-500"
+          type="button"
+          onClick={handleToggleComments}
+        >
+          <span className="text-lg">💬</span>
+          <span>Comment</span>
+        </button>
+        {attachments.length > 0 && (
+          <button className="ml-auto bg-gradient-to-r from-orange-400 to-pink-500 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2">
+            🔥 Wooow!!!
+          </button>
         )}
-      </footer>
+      </div>
+
+      {showComments && (
+        <div className="mt-4 border-t pt-4">
+          <div className="flex items-start gap-2 mb-3">
+            <input
+              type="text"
+              className="flex-1 rounded-full border px-3 py-1 text-sm"
+              placeholder="Write a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={handleCreateComment}
+              disabled={submittingComment || !newComment.trim()}
+              className="text-sm px-3 py-1 rounded-full bg-blue-600 text-white disabled:bg-blue-300"
+            >
+              Send
+            </button>
+          </div>
+
+          {loadingComments ? (
+            <p className="mt-2 text-xs text-gray-500">Loading comments...</p>
+          ) : (
+            <div className="mt-2">
+              {comments.map((c) => (
+                <CommentItem key={c.id} comment={c} onReply={handleReply} />
+              ))}
+              {comments.length === 0 && (
+                <p className="mt-2 text-xs text-gray-400">No comments yet, be the first!</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </article>
   );
 };

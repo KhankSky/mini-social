@@ -11,6 +11,7 @@ const PAGE_SIZE = 10;
 const Feed = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [activeTab, setActiveTab] = useState('Recents');
 
   useEffect(() => {
     const loadMe = async () => {
@@ -42,25 +43,49 @@ const Feed = () => {
     setPosts((prev) => [newPost, ...prev]);
   };
 
-  return (
-    <div className="max-w-6xl mx-auto px-4">
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 md:col-span-3">
-          <Sidebar user={user} />
-        </div>
+    return (
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className="w-64 bg-white p-6 flex flex-col flex-shrink-0">
+        <Sidebar user={user} />
+      </div>
 
-        <div className="col-span-12 md:col-span-6">
-          <div className="space-y-4">
-            <ComposeBox user={user} onPostCreated={handlePostCreated} />
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto p-8">
+        {/* Thêm mx-auto để căn giữa */}
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">Feeds</h1>
+            <div className="flex gap-6">
+              <button 
+                onClick={() => setActiveTab('Recents')}
+                className={activeTab === 'Recents' ? 'text-black font-semibold border-b-2 border-black pb-1' : 'text-gray-400 hover:text-gray-600'}
+              >
+                Recents
+              </button>
+              <button 
+                onClick={() => setActiveTab('Friends')}
+                className={activeTab === 'Friends' ? 'text-black font-semibold border-b-2 border-black pb-1' : 'text-gray-400 hover:text-gray-600'}
+              >
+                Friends
+              </button>
+            </div>
+          </div>
+
+          <ComposeBox user={user} onPostCreated={handlePostCreated} />
+
+          {/* Posts */}
+          <div className="space-y-6">
             {posts.map((p) => (
               <PostCard key={p.id} post={p} />
             ))}
           </div>
         </div>
+      </div>
 
-        <div className="col-span-12 md:col-span-3 hidden lg:block">
-          <RightSidebar />
-        </div>
+      {/* Right Sidebar */}
+      <div className="w-80 bg-white p-6 overflow-y-auto flex-shrink-0">
+        <RightSidebar />
       </div>
     </div>
   );
