@@ -1,5 +1,6 @@
 package com.example.social.dto.response.post;
 
+import com.example.social.domain.PostPrivacy;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,8 @@ public class ResGetPostDTO {
     private String username;
     private String userAvatarUrl;
     private List<AttachmentDTO> attachments;
+    private PostPrivacy privacy;
+    private String location;
     private Long likeCount;
     private Long commentCount;
     private LocalDateTime createdAt;
