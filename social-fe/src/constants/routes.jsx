@@ -1,5 +1,6 @@
 import DefaultLayout from "../layouts/DefaultLayout.jsx";
 import Feed from "../pages/Feed.jsx";
+import Friends from "../pages/Friends.jsx";
 import Login from "../pages/Login.jsx";
 import Register from "../pages/Register.jsx";
 import AdminLayout from "../layouts/AdminLayout.jsx";
@@ -18,6 +19,10 @@ export const routes = [
       {
         index: true,
         element: <Feed />,
+      },
+      {
+        path: "friends",
+        element: <Friends />,
       },
     ],
   },
