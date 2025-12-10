@@ -54,7 +54,7 @@ const Header = () => {
               </li>
 
               <li>
-                <Link to="/messaging" className="flex flex-col items-center text-sm text-gray-600 hover:text-blue-600">
+                <Link to="/messages" className="flex flex-col items-center text-sm text-gray-600 hover:text-blue-600">
                   <RiMessage2Line size={22} />
                   <span className="text-xs mt-1 hidden md:block">Messaging</span>
                 </Link>

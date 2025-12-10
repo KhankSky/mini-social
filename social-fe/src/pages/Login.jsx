@@ -17,6 +17,11 @@ const Login = () => {
     try {
       const token = await AuthService.login({ username, password });
       localStorage.setItem('social_app_token', token);
+
+      // Fetch user profile and store it
+      const user = await AuthService.fetchProfile();
+      localStorage.setItem('user', JSON.stringify(user));
+
       navigate('/');
     } catch (err) {
       console.error(err);

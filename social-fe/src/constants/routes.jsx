@@ -5,6 +5,7 @@ import Register from "../pages/Register.jsx";
 import AdminLayout from "../layouts/AdminLayout.jsx";
 import Users from "../pages/admin/Users.jsx";
 import ProtectedRoute from "../components/ProtectedRoute.jsx";
+import Messages from "../pages/Messages.jsx";
 
 export const routes = [
   {
@@ -18,6 +19,10 @@ export const routes = [
       {
         index: true,
         element: <Feed />,
+      },
+      {
+        path: "messages",
+        element: <Messages />,
       },
     ],
   },

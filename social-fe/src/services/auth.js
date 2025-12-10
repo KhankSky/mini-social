@@ -15,8 +15,20 @@ const AuthService = {
 
   logout: () => {
     localStorage.removeItem('social_app_token');
+    localStorage.removeItem('user');
     window.location.href = '/login';
+  },
+
+  fetchProfile: async () => {
+    const res = await httpClient.get('/auth/me');
+    return res.data;
   }
+};
+
+export const getCurrentUser = () => {
+  const userStr = localStorage.getItem("user");
+  if (userStr) return JSON.parse(userStr);
+  return null;
 };
 
 export default AuthService;

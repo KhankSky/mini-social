@@ -17,8 +17,8 @@ const Sidebar = ({ user }) => {
   return (
     <>
       <div className="flex items-center gap-4 mb-8">
-        <img 
-          src={avatar} 
+        <img
+          src={avatar}
           alt={name}
           className="w-16 h-16 rounded-full object-cover"
         />
@@ -33,11 +33,11 @@ const Sidebar = ({ user }) => {
           <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-xs">📰</div>
           <span>News Feed</span>
         </Link>
-        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full relative">
+        <Link to="/messages" className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full relative">
           <span className="text-xl">✉️</span>
           <span>Messages</span>
           <span className="ml-auto bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">6</span>
-        </button>
+        </Link>
         <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
           <span className="text-xl">🔔</span>
           <span>Notifications</span>
