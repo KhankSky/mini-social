@@ -42,11 +42,11 @@ const Sidebar = ({ user }) => {
           <span className="text-xl">🔔</span>
           <span>Notifications</span>
         </button>
-        <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full relative">
+        <Link to="/friends" className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full relative">
           <span className="text-xl">👥</span>
           <span>Friends</span>
           <span className="ml-auto bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-        </button>
+        </Link>
         <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
           <span className="text-xl">🔍</span>
           <span>Search</span>
