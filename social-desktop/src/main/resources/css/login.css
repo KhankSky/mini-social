@@ -1,0 +1,96 @@
+/* Login page styles */
+.login-root {
+    -fx-background-color: linear-gradient(to bottom right, #6366f1, #a855f7, #ec4899);
+}
+
+/* Register page styles */
+.register-root {
+    -fx-background-color: linear-gradient(to bottom right, #10b981, #14b8a6, #06b6d4);
+}
+
+.login-blobs {
+    -fx-background-color: transparent;
+}
+
+.glass-card {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 24;
+    -fx-padding: 28;
+    -fx-border-color: rgba(255,255,255,0.25);
+    -fx-border-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0.3, 0, 10);
+}
+
+.title {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+}
+
+.subtitle, .footer {
+    -fx-text-fill: rgba(255,255,255,0.8);
+    -fx-font-size: 14px;
+}
+
+.input-label {
+    -fx-text-fill: rgba(255,255,255,0.9);
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.input-control {
+    -fx-background-radius: 14;
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-border-color: rgba(255,255,255,0.4);
+    -fx-border-radius: 14;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255,255,255,0.5);
+    -fx-padding: 10 12 10 12;
+}
+
+.error-label {
+    -fx-text-fill: #fecdd3;
+    -fx-background-color: rgba(239, 68, 68, 0.25);
+    -fx-border-color: rgba(248, 113, 113, 0.5);
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+.register-blobs {
+    -fx-background-color: transparent;
+}
+
+.register-button {
+    -fx-background-color: linear-gradient(to right, #10b981, #14b8a6);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-background-radius: 14;
+    -fx-padding: 10 14 10 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0.3, 0, 6);
+    -fx-cursor: hand;
+}
+
+.register-button:hover {
+    -fx-background-color: linear-gradient(to right, #059669, #0d9488);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 16, 0.4, 0, 8);
+}
+
+.register-button:pressed {
+    -fx-translate-y: 1;
+}
+
+.link-button-text {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.link-button-text:hover {
+    -fx-text-fill: rgba(255,255,255,0.9);
+    -fx-underline: true;
+}

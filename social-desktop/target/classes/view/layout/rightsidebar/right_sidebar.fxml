@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.minisocial.desktop.view.layout.rightsidebar.RightSidebarController"
+      spacing="16" prefWidth="260" styleClass="sidebar-right">
+    <padding>
+        <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+    </padding>
+    <HBox alignment="CENTER_LEFT" spacing="8">
+        <Label text="Suggestions" styleClass="feed-title-small"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="See all" styleClass="link-button"/>
+    </HBox>
+    <VBox spacing="12">
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="suggestion-card">
+            <Circle radius="18" fill="linear-gradient(to bottom, #22d3ee, #6366f1)"/>
+            <Label text="Nick Shelburne" styleClass="suggestion-name"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button styleClass="ghost-button-small">
+                <graphic>
+                    <HBox spacing="4" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-user-plus" iconSize="12" iconColor="#374151"/>
+                        <Label text="Add" styleClass="button-label-small"/>
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="suggestion-card">
+            <Circle radius="18" fill="linear-gradient(to bottom, #f472b6, #a855f7)"/>
+            <Label text="Brittni Lando" styleClass="suggestion-name"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button styleClass="ghost-button-small">
+                <graphic>
+                    <HBox spacing="4" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-user-plus" iconSize="12" iconColor="#374151"/>
+                        <Label text="Add" styleClass="button-label-small"/>
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="suggestion-card">
+            <Circle radius="18" fill="linear-gradient(to bottom, #fb923c, #f59e0b)"/>
+            <Label text="Ivan Shevchenko" styleClass="suggestion-name"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button styleClass="ghost-button-small">
+                <graphic>
+                    <HBox spacing="4" alignment="CENTER">
+                        <FontIcon iconLiteral="fas-user-plus" iconSize="12" iconColor="#374151"/>
+                        <Label text="Add" styleClass="button-label-small"/>
+                    </HBox>
+                </graphic>
+            </Button>
+        </HBox>
+    </VBox>
+</VBox>
