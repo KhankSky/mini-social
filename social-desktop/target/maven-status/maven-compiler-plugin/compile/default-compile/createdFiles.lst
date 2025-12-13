@@ -1,0 +1,10 @@
+com\minisocial\desktop\view\feed\FeedController.class
+com\minisocial\desktop\SocialDesktopApp.class
+com\minisocial\desktop\view\layout\main\MainLayoutController.class
+com\minisocial\desktop\view\layout\rightsidebar\RightSidebarController.class
+com\minisocial\desktop\view\register\RegisterController.class
+com\minisocial\desktop\view\layout\leftsidebar\LeftSidebarController.class
+com\minisocial\desktop\AppNavigator.class
+com\minisocial\desktop\view\login\LoginController.class
+com\minisocial\desktop\UserSession.class
+com\minisocial\desktop\view\feed\FeedController$Post.class

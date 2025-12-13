@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.minisocial.desktop.view.layout.leftsidebar.LeftSidebarController"
+      spacing="16" prefWidth="240" styleClass="sidebar-left">
+    <padding>
+        <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+    </padding>
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Circle radius="28" fill="linear-gradient(to bottom, #6366f1, #a855f7)"/>
+        <VBox spacing="4">
+            <Label fx:id="fullNameLabel" styleClass="profile-name" text="User Name"/>
+            <Label fx:id="usernameLabel" styleClass="profile-username" text="@username"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="8">
+        <Button maxWidth="Infinity" styleClass="nav-button,primary-nav">
+            <graphic>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-newspaper" iconSize="16" iconColor="white"/>
+                    <Label text="News Feed" styleClass="nav-label-white"/>
+                </HBox>
+            </graphic>
+        </Button>
+        <Button maxWidth="Infinity" styleClass="nav-button">
+            <graphic>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-envelope" iconSize="16" iconColor="#1f2937"/>
+                    <Label text="Messages" styleClass="nav-label"/>
+                </HBox>
+            </graphic>
+        </Button>
+        <Button maxWidth="Infinity" styleClass="nav-button">
+            <graphic>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-bell" iconSize="16" iconColor="#1f2937"/>
+                    <Label text="Notifications" styleClass="nav-label"/>
+                </HBox>
+            </graphic>
+        </Button>
+        <Button maxWidth="Infinity" styleClass="nav-button">
+            <graphic>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#1f2937"/>
+                    <Label text="Friends" styleClass="nav-label"/>
+                </HBox>
+            </graphic>
+        </Button>
+        <Button maxWidth="Infinity" styleClass="nav-button">
+            <graphic>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#1f2937"/>
+                    <Label text="Search" styleClass="nav-label"/>
+                </HBox>
+            </graphic>
+        </Button>
+        <Button maxWidth="Infinity" styleClass="nav-button">
+            <graphic>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="#1f2937"/>
+                    <Label text="Settings" styleClass="nav-label"/>
+                </HBox>
+            </graphic>
+        </Button>
+    </VBox>
+</VBox>
