@@ -6,7 +6,7 @@ Mở terminal và chạy lệnh:
 
 ```powershell
 cd c:\workspace\mini-social\social-be
-.\mvnw.cmd spring-boot:run
+.\mvnw.cmd spring-boot:runcd soc
 ```
 
 Backend sẽ chạy tại: `http://localhost:9090`

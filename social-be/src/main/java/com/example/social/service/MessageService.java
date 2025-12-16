@@ -67,7 +67,38 @@ public class MessageService {
         ResMessageDTO resDto = convertToDTO(savedMessage);
 
         // Notify receiver via WebSocket
-        messagingTemplate.convertAndSendToUser(receiver.getUsername(), "/queue/messages", resDto);
+        // IMPORTANT: Use email instead of username because WebSocket authentication
+        // uses email as principal
+        messagingTemplate.convertAndSendToUser(receiver.getEmail(), "/queue/messages", resDto);
+
+        return resDto;
+    }
+
+    @Transactional
+    public ResMessageDTO editMessage(Long messageId, String newContent, String senderEmail) {
+        User sender = userRepository.findByEmail(senderEmail);
+        if (sender == null)
+            throw new RuntimeException("User not found");
+
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+
+        if (!message.getSender().getId().equals(sender.getId())) {
+            throw new RuntimeException("You are not authorized to edit this message");
+        }
+
+        message.setContent(newContent);
+        Message savedMessage = messageRepository.save(message);
+        ResMessageDTO resDto = convertToDTO(savedMessage);
+
+        // Notify receiver via WebSocket
+        messagingTemplate.convertAndSendToUser(message.getReceiver().getEmail(), "/queue/messages", resDto);
+
+        // Also notify sender to update their UI immediately (optional, but good for
+        // consistency across devices)
+        // actually sender gets the response from API, but if they have multiple tabs
+        // open...
+        // let's just stick to notifying receiver. Request/Response handles sender.
 
         return resDto;
     }
@@ -126,6 +157,7 @@ public class MessageService {
             ResConversationDTO dto = new ResConversationDTO();
             dto.setUserId(otherUser.getId());
             dto.setUsername(otherUser.getUsername());
+            dto.setEmail(otherUser.getEmail());
             dto.setAvatarUrl(otherUser.getAvatarUrl());
             dto.setLastMessage(lastMsg.getContent());
             dto.setLastMessageTime(lastMsg.getSentAt());

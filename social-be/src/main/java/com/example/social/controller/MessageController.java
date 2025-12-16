@@ -27,6 +27,14 @@ public class MessageController {
         return ResponseEntity.ok(messageService.sendMessage(req, files, authentication.getName()));
     }
 
+    @PutMapping("/{messageId}")
+    public ResponseEntity<ResMessageDTO> editMessage(
+            @PathVariable Long messageId,
+            @RequestBody com.example.social.dto.request.message.ReqEditMessageDTO req,
+            Authentication authentication) {
+        return ResponseEntity.ok(messageService.editMessage(messageId, req.getContent(), authentication.getName()));
+    }
+
     @GetMapping("/conversations")
     public ResponseEntity<List<ResConversationDTO>> getConversations(Authentication authentication) {
         return ResponseEntity.ok(messageService.getConversations(authentication.getName()));

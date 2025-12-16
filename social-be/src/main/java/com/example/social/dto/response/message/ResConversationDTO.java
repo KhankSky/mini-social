@@ -6,6 +6,7 @@ import lombok.Data;
 public class ResConversationDTO {
     private Long userId;
     private String username;
+    private String email;
     private String avatarUrl;
     private String lastMessage;
     private java.time.LocalDateTime lastMessageTime;

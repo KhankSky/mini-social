@@ -127,7 +127,13 @@ const Messages = () => {
     const handleNewMessage = (newMessage, currentUserId) => {
         setActiveConversation(prevActive => {
             if (prevActive && (newMessage.senderId === prevActive.userId || newMessage.receiverId === prevActive.userId)) {
-                setMessages(prev => [...prev, newMessage]);
+                setMessages(prev => {
+                    const exists = prev.find(m => m.id === newMessage.id);
+                    if (exists) {
+                        return prev.map(m => m.id === newMessage.id ? newMessage : m);
+                    }
+                    return [...prev, newMessage];
+                });
             }
             return prevActive;
         });
@@ -152,6 +158,17 @@ const Messages = () => {
         }
     };
 
+    const handleEditMessage = async (messageId, newContent) => {
+        try {
+            const res = await import("../services/message").then(m => m.editMessage(messageId, newContent));
+            // Update local state immediately
+            setMessages(prev => prev.map(m => m.id === messageId ? res.data : m));
+            loadConversations();
+        } catch (error) {
+            console.error("Failed to edit message", error);
+        }
+    };
+
     const handleNewMessageClick = () => {
         setShowNewMessageModal(true);
     };
@@ -171,7 +188,7 @@ const Messages = () => {
         if (!activeConversation) return;
         try {
             await webrtcService.getMediaStream(true, false);
-            await webrtcService.createOffer(activeConversation.username, false);
+            await webrtcService.createOffer(activeConversation.email, false);
             setActiveCall({ peer: activeConversation, isVideo: false });
         } catch (error) {
             console.error('Failed to start voice call:', error);
@@ -183,7 +200,7 @@ const Messages = () => {
         if (!activeConversation) return;
         try {
             await webrtcService.getMediaStream(true, true);
-            await webrtcService.createOffer(activeConversation.username, true);
+            await webrtcService.createOffer(activeConversation.email, true);
             setActiveCall({ peer: activeConversation, isVideo: true });
         } catch (error) {
             console.error('Failed to start video call:', error);
@@ -192,10 +209,10 @@ const Messages = () => {
     };
 
     const handleCallOffer = async (data) => {
-        const caller = conversations.find(c => c.username === data.from);
+        const caller = conversations.find(c => c.email === data.from);
         if (!caller) {
             // Find user info if not in conversations
-            const user = onlineUsers.find(u => u.username === data.from);
+            const user = onlineUsers.find(u => u.email === data.from);
             if (user) {
                 setIncomingCall({
                     caller: user,
@@ -216,7 +233,7 @@ const Messages = () => {
         if (!incomingCall) return;
         try {
             await webrtcService.getMediaStream(true, incomingCall.isVideo);
-            await webrtcService.createAnswer(incomingCall.caller.username, incomingCall.sdp);
+            await webrtcService.createAnswer(incomingCall.caller.email, incomingCall.sdp);
             setActiveCall({ peer: incomingCall.caller, isVideo: incomingCall.isVideo });
             setIncomingCall(null);
         } catch (error) {
@@ -227,7 +244,7 @@ const Messages = () => {
 
     const handleRejectCall = () => {
         if (incomingCall) {
-            webrtcService.rejectCall(incomingCall.caller.username);
+            webrtcService.rejectCall(incomingCall.caller.email);
             setIncomingCall(null);
         }
     };
@@ -264,7 +281,7 @@ const Messages = () => {
 
     const handleEndCall = () => {
         if (activeCall) {
-            webrtcService.endCall(activeCall.peer.username);
+            webrtcService.endCall(activeCall.peer.email);
             setActiveCall(null);
             setIsMuted(false);
             setIsVideoOff(false);
@@ -303,6 +320,7 @@ const Messages = () => {
                         currentUser={currentUser}
                         onVoiceCall={handleVoiceCall}
                         onVideoCall={handleVideoCall}
+                        onEditMessage={handleEditMessage}
                     />
                 </div>
             </div>

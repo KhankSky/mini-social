@@ -37,3 +37,7 @@ export const markAllAsRead = async (userId) => {
 export const getUnreadCount = async () => {
     return httpClient.get("/messages/unread-count");
 };
+
+export const editMessage = async (messageId, content) => {
+    return httpClient.put(`/messages/${messageId}`, { content });
+};

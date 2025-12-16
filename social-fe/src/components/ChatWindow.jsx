@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { FiPhone, FiVideo, FiMoreVertical, FiSmile, FiPaperclip, FiSend, FiImage, FiX } from "react-icons/fi";
 import MessageItem from "./MessageItem";
 
-const ChatWindow = ({ activeConversation, messages, onSendMessage, currentUser, onVoiceCall, onVideoCall }) => {
+const ChatWindow = ({ activeConversation, messages, onSendMessage, currentUser, onVoiceCall, onVideoCall, onEditMessage }) => {
     const [inputValue, setInputValue] = useState("");
     const [selectedFiles, setSelectedFiles] = useState([]);
     const messagesEndRef = useRef(null);
@@ -100,6 +100,7 @@ const ChatWindow = ({ activeConversation, messages, onSendMessage, currentUser, 
                         isOwn={msg.senderId === currentUser.id}
                         userAvatar={activeConversation.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.username}`}
                         myAvatar={currentUser.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.username}`}
+                        onEditMessage={onEditMessage}
                     />
                 ))}
                 <div ref={messagesEndRef} />
