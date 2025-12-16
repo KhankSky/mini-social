@@ -11,8 +11,11 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -21,9 +24,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -50,6 +57,7 @@ public class FeedController {
     @FXML private Button searchLocationButton;
     @FXML private Button clearLocationButton;
     @FXML private VBox locationResultsBox;
+    @FXML private HBox selectedImagesContainer;
 
     private List<File> selectedImages = new ArrayList<>();
     private LocationDTO selectedLocation = null;
@@ -198,13 +206,13 @@ public class FeedController {
         selectedImagesBox.getChildren().clear();
         
         if (selectedImages.isEmpty()) {
-            selectedImagesBox.setManaged(false);
-            selectedImagesBox.setVisible(false);
+            selectedImagesContainer.setManaged(false);
+            selectedImagesContainer.setVisible(false);
             return;
         }
-        
-        selectedImagesBox.setManaged(true);
-        selectedImagesBox.setVisible(true);
+
+        selectedImagesContainer.setManaged(true);
+        selectedImagesContainer.setVisible(true);
         
         for (File file : selectedImages) {
             HBox imageItemBox = new HBox(8);
@@ -471,7 +479,6 @@ public class FeedController {
         
         return imageView;
     }
-
     private void showCommentsDialog(PostDTO post) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Comments");
@@ -479,16 +486,20 @@ public class FeedController {
 
         VBox content = new VBox(10);
         content.setPadding(new Insets(10));
-        content.setPrefWidth(500);
-        content.setPrefHeight(400);
+        content.setPrefWidth(550);
+        content.setPrefHeight(450);
+        content.setStyle("-fx-background-color: #ffffff;");
 
         ScrollPane scrollPane = new ScrollPane();
-        VBox commentsContainer = new VBox(8);
+        VBox commentsContainer = new VBox(12);
+        commentsContainer.setPadding(new Insets(10));
         scrollPane.setContent(commentsContainer);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(300);
+        scrollPane.setPrefHeight(320);
+        scrollPane.setStyle("-fx-background: #fafafa; -fx-background-color: transparent;");
 
         Label loadingLabel = new Label("Loading comments...");
+        loadingLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 14px;");
         commentsContainer.getChildren().add(loadingLabel);
 
         new Thread(() -> {
@@ -497,7 +508,9 @@ public class FeedController {
                 Platform.runLater(() -> {
                     commentsContainer.getChildren().clear();
                     if (comments.isEmpty()) {
-                        commentsContainer.getChildren().add(new Label("No comments yet. Be the first to comment!"));
+                        Label emptyLabel = new Label("💬 No comments yet. Be the first to comment!");
+                        emptyLabel.setStyle("-fx-text-fill: #999; -fx-font-size: 14px; -fx-padding: 20;");
+                        commentsContainer.getChildren().add(emptyLabel);
                     } else {
                         for (CommentDTO comment : comments) {
                             commentsContainer.getChildren().add(buildCommentView(comment));
@@ -507,20 +520,69 @@ public class FeedController {
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     commentsContainer.getChildren().clear();
-                    commentsContainer.getChildren().add(new Label("Failed to load comments: " + e.getMessage()));
+                    Label errorLabel = new Label("⚠️ Failed to load comments: " + e.getMessage());
+                    errorLabel.setStyle("-fx-text-fill: #d32f2f; -fx-font-size: 13px;");
+                    commentsContainer.getChildren().add(errorLabel);
                 });
             }
         }).start();
 
+        // Comment input section
+        VBox inputSection = new VBox(8);
+        inputSection.setPadding(new Insets(10));
+        inputSection.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8;");
+
         TextArea commentInput = new TextArea();
         commentInput.setPromptText("Write a comment...");
         commentInput.setPrefRowCount(2);
+        commentInput.setWrapText(true);
+        commentInput.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-border-color: #e0e0e0; " +
+            "-fx-border-radius: 6; " +
+            "-fx-background-radius: 6; " +
+            "-fx-font-size: 13px; " +
+            "-fx-padding: 8;"
+        );
 
-        Button submitBtn = new Button("Submit");
+        Button submitBtn = new Button("Post Comment");
+        submitBtn.setStyle(
+            "-fx-background-color: #1976d2; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 13px; " +
+            "-fx-padding: 8 20; " +
+            "-fx-background-radius: 6; " +
+            "-fx-cursor: hand;"
+        );
+        submitBtn.setOnMouseEntered(e -> 
+            submitBtn.setStyle(
+                "-fx-background-color: #1565c0; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 13px; " +
+                "-fx-padding: 8 20; " +
+                "-fx-background-radius: 6; " +
+                "-fx-cursor: hand;"
+            )
+        );
+        submitBtn.setOnMouseExited(e -> 
+            submitBtn.setStyle(
+                "-fx-background-color: #1976d2; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 13px; " +
+                "-fx-padding: 8 20; " +
+                "-fx-background-radius: 6; " +
+                "-fx-cursor: hand;"
+            )
+        );
+        
         submitBtn.setOnAction(e -> {
             String commentText = commentInput.getText().trim();
             if (!commentText.isEmpty()) {
                 submitBtn.setDisable(true);
+                submitBtn.setText("Posting...");
                 new Thread(() -> {
                     try {
                         CreateCommentRequest request = new CreateCommentRequest(commentText);
@@ -530,6 +592,7 @@ public class FeedController {
                             commentInput.clear();
                             commentsContainer.getChildren().add(0, buildCommentView(newComment));
                             submitBtn.setDisable(false);
+                            submitBtn.setText("Post Comment");
                             post.setCommentCount((post.getCommentCount() != null ? post.getCommentCount() : 0) + 1);
                             renderPosts();
                         });
@@ -537,61 +600,229 @@ public class FeedController {
                         Platform.runLater(() -> {
                             showAlert("Error", "Failed to post comment: " + ex.getMessage());
                             submitBtn.setDisable(false);
+                            submitBtn.setText("Post Comment");
                         });
                     }
                 }).start();
             }
         });
 
-        content.getChildren().addAll(scrollPane, commentInput, submitBtn);
+        inputSection.getChildren().addAll(commentInput, submitBtn);
+        content.getChildren().addAll(scrollPane, inputSection);
+        
         dialog.getDialogPane().setContent(content);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         dialog.showAndWait();
     }
 
     private VBox buildCommentView(CommentDTO comment) {
-        Image avatarImage = defaultAvatar;
-        if (comment.getUserAvatarUrl() != null && !comment.getUserAvatarUrl().isEmpty()) {
-            try {
-                avatarImage = new Image(comment.getUserAvatarUrl(), true);
-            } catch (Exception e) {
-                avatarImage = defaultAvatar;
-            }
-        }
+        // Avatar
+        ImageView avatar = new ImageView(comment.getUserAvatarUrl());
+        avatar.setFitWidth(40);
+        avatar.setFitHeight(40);
+        avatar.setPreserveRatio(true);
+        avatar.setStyle(
+            "-fx-background-radius: 20; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);"
+        );
         
-        ImageView avatar = new ImageView(avatarImage);
-        avatar.setFitWidth(32);
-        avatar.setFitHeight(32);
-        avatar.setClip(new Circle(16, 16, 16));
+        // Clip avatar to circle
+        Circle clip = new Circle(20, 20, 20);
+        avatar.setClip(clip);
 
+        // Username
         Label username = new Label("@" + comment.getUsername());
-        username.setStyle("-fx-font-weight: bold;");
-        
-        Label timeLabel = new Label(formatTimeAgo(comment.getCreatedAt()));
-        timeLabel.setStyle("-fx-text-fill: gray; -fx-font-size: 10px;");
+        username.setStyle(
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 13px; " +
+            "-fx-text-fill: #1a1a1a;"
+        );
 
+        // Time label
+        Label timeLabel = new Label(formatTimeAgo(comment.getCreatedAt()));
+        timeLabel.setStyle(
+            "-fx-text-fill: #757575; " +
+            "-fx-font-size: 11px;"
+        );
+
+        HBox headerBox = new HBox(6, username, timeLabel);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+
+        // Content
         Label contentLabel = new Label(comment.getContent());
         contentLabel.setWrapText(true);
+        contentLabel.setStyle(
+            "-fx-font-size: 13px; " +
+            "-fx-text-fill: #333; " +
+            "-fx-padding: 4 0 8 0;"
+        );
 
-        VBox textContent = new VBox(2, username, contentLabel, timeLabel);
-        HBox commentBox = new HBox(8, avatar, textContent);
-        commentBox.setAlignment(Pos.TOP_LEFT);
-        commentBox.setPadding(new Insets(8));
-        commentBox.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 8;");
+        // Reply button
+        Button replyBtn = new Button("Reply");
+        replyBtn.setStyle(
+            "-fx-font-size: 11px; " +
+            "-fx-text-fill: #1976d2; " +
+            "-fx-background-color: transparent; " +
+            "-fx-border-color: transparent; " +
+            "-fx-cursor: hand; " +
+            "-fx-padding: 2 8;"
+        );
+        replyBtn.setOnMouseEntered(e -> 
+            replyBtn.setStyle(
+                "-fx-font-size: 11px; " +
+                "-fx-text-fill: #1565c0; " +
+                "-fx-background-color: #e3f2fd; " +
+                "-fx-background-radius: 4; " +
+                "-fx-cursor: hand; " +
+                "-fx-padding: 2 8;"
+            )
+        );
+        replyBtn.setOnMouseExited(e -> 
+            replyBtn.setStyle(
+                "-fx-font-size: 11px; " +
+                "-fx-text-fill: #1976d2; " +
+                "-fx-background-color: transparent; " +
+                "-fx-border-color: transparent; " +
+                "-fx-cursor: hand; " +
+                "-fx-padding: 2 8;"
+            )
+        );
 
-        VBox commentContainer = new VBox(commentBox);
-        
+        VBox textContent = new VBox(2, headerBox, contentLabel, replyBtn);
+
+        HBox commentBox = new HBox(10, avatar, textContent);
+        commentBox.setPadding(new Insets(12));
+        commentBox.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-background-radius: 10; " +
+            "-fx-border-color: #e8e8e8; " +
+            "-fx-border-width: 1; " +
+            "-fx-border-radius: 10; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);"
+        );
+
+        VBox commentContainer = new VBox(8, commentBox);
+
+        // Reply input section
+        VBox replyBox = new VBox(6);
+        replyBox.setPadding(new Insets(0, 0, 0, 50));
+        replyBox.setVisible(false);
+        replyBox.setManaged(false);
+
+        TextArea replyInput = new TextArea();
+        replyInput.setPromptText("Write a reply...");
+        replyInput.setPrefRowCount(2);
+        replyInput.setWrapText(true);
+        replyInput.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-border-color: #e0e0e0; " +
+            "-fx-border-radius: 6; " +
+            "-fx-background-radius: 6; " +
+            "-fx-font-size: 12px; " +
+            "-fx-padding: 8;"
+        );
+
+        Button sendReplyBtn = new Button("Send Reply");
+        sendReplyBtn.setStyle(
+            "-fx-background-color: #43a047; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-font-size: 12px; " +
+            "-fx-padding: 6 16; " +
+            "-fx-background-radius: 6; " +
+            "-fx-cursor: hand;"
+        );
+        sendReplyBtn.setOnMouseEntered(e -> 
+            sendReplyBtn.setStyle(
+                "-fx-background-color: #388e3c; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 6 16; " +
+                "-fx-background-radius: 6; " +
+                "-fx-cursor: hand;"
+            )
+        );
+        sendReplyBtn.setOnMouseExited(e -> 
+            sendReplyBtn.setStyle(
+                "-fx-background-color: #43a047; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 12px; " +
+                "-fx-padding: 6 16; " +
+                "-fx-background-radius: 6; " +
+                "-fx-cursor: hand;"
+            )
+        );
+
+        replyBox.getChildren().addAll(replyInput, sendReplyBtn);
+        commentContainer.getChildren().add(replyBox);
+
+        replyBtn.setOnAction(e -> {
+            replyBox.setVisible(!replyBox.isVisible());
+            replyBox.setManaged(replyBox.isVisible());
+        });
+
+        sendReplyBtn.setOnAction(e -> {
+            String text = replyInput.getText().trim();
+            if (text.isEmpty()) return;
+
+            sendReplyBtn.setDisable(true);
+            sendReplyBtn.setText("Sending...");
+
+            new Thread(() -> {
+                try {
+                    CreateCommentRequest req = new CreateCommentRequest(text, comment.getId());
+                    CommentDTO reply = commentService.createComment(comment.getPostId(), req);
+
+                    Platform.runLater(() -> {
+                        replyInput.clear();
+                        replyBox.setVisible(false);
+                        replyBox.setManaged(false);
+                        addReplyToUI(commentContainer, reply);
+                        sendReplyBtn.setDisable(false);
+                        sendReplyBtn.setText("Send Reply");
+                    });
+                } catch (Exception ex) {
+                    Platform.runLater(() -> {
+                        showAlert("Error", ex.getMessage());
+                        sendReplyBtn.setDisable(false);
+                        sendReplyBtn.setText("Send Reply");
+                    });
+                }
+            }).start();
+        });
+
+        // Display existing replies
         if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
-            VBox repliesBox = new VBox(4);
-            repliesBox.setPadding(new Insets(0, 0, 0, 40));
+            VBox repliesBox = new VBox(8);
+            repliesBox.setPadding(new Insets(0, 0, 0, 50));
+
             for (CommentDTO reply : comment.getReplies()) {
                 repliesBox.getChildren().add(buildCommentView(reply));
             }
+
             commentContainer.getChildren().add(repliesBox);
         }
 
         return commentContainer;
     }
+
+    private void addReplyToUI(VBox commentContainer, CommentDTO reply) {
+        VBox repliesBox;
+
+        if (commentContainer.getChildren().size() > 2 &&
+            commentContainer.getChildren().get(2) instanceof VBox) {
+            repliesBox = (VBox) commentContainer.getChildren().get(2);
+        } else {
+            repliesBox = new VBox(8);
+            repliesBox.setPadding(new Insets(0, 0, 0, 50));
+            commentContainer.getChildren().add(repliesBox);
+        }
+
+        repliesBox.getChildren().add(buildCommentView(reply));
+    }
+
 
     private Button pillButton(String iconLiteral, String text) {
         FontIcon icon = new FontIcon(iconLiteral);

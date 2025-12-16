@@ -93,65 +93,32 @@ public class PostService {
      */
     public PostDTO createPost(CreatePostRequest request, List<File> images) throws IOException, InterruptedException {
         String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+        String LINE_FEED = "\r\n";
         
-        // Build multipart body
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
         
-        // Add content field
+        // Add text fields
         if (request.getContent() != null && !request.getContent().isEmpty()) {
-            writer.append("--").append(boundary).append("\r\n");
-            writer.append("Content-Disposition: form-data; name=\"content\"\r\n");
-            writer.append("Content-Type: text/plain; charset=UTF-8\r\n\r\n");
-            writer.append(request.getContent()).append("\r\n");
-            writer.flush();
+            writeTextField(outputStream, boundary, "content", request.getContent(), LINE_FEED);
         }
         
-        // Add privacy field
         if (request.getPrivacy() != null && !request.getPrivacy().isEmpty()) {
-            writer.append("--").append(boundary).append("\r\n");
-            writer.append("Content-Disposition: form-data; name=\"privacy\"\r\n");
-            writer.append("Content-Type: text/plain; charset=UTF-8\r\n\r\n");
-            writer.append(request.getPrivacy()).append("\r\n");
-            writer.flush();
+            writeTextField(outputStream, boundary, "privacy", request.getPrivacy(), LINE_FEED);
         }
         
-        // Add location field
         if (request.getLocation() != null && !request.getLocation().isEmpty()) {
-            writer.append("--").append(boundary).append("\r\n");
-            writer.append("Content-Disposition: form-data; name=\"location\"\r\n");
-            writer.append("Content-Type: text/plain; charset=UTF-8\r\n\r\n");
-            writer.append(request.getLocation()).append("\r\n");
-            writer.flush();
+            writeTextField(outputStream, boundary, "location", request.getLocation(), LINE_FEED);
         }
         
         // Add image files
         if (images != null && !images.isEmpty()) {
             for (File imageFile : images) {
-                String mimeType = Files.probeContentType(imageFile.toPath());
-                if (mimeType == null) {
-                    mimeType = "application/octet-stream";
-                }
-                
-                writer.append("--").append(boundary).append("\r\n");
-                writer.append("Content-Disposition: form-data; name=\"images\"; filename=\"")
-                      .append(imageFile.getName()).append("\"\r\n");
-                writer.append("Content-Type: ").append(mimeType).append("\r\n");
-                writer.append("Content-Transfer-Encoding: binary\r\n\r\n");
-                writer.flush();
-                
-                // Write file bytes
-                Files.copy(imageFile.toPath(), outputStream);
-                outputStream.flush();
-                
-                writer.append("\r\n");
-                writer.flush();
+                writeFileField(outputStream, boundary, "images", imageFile, LINE_FEED);
             }
         }
         
-        // End of multipart
-        writer.append("--").append(boundary).append("--\r\n");
-        writer.close();
+        // End boundary
+        outputStream.write(("--" + boundary + "--" + LINE_FEED).getBytes(StandardCharsets.UTF_8));
         
         byte[] multipartBody = outputStream.toByteArray();
         
@@ -170,6 +137,47 @@ public class PostService {
         } else {
             throw new IOException("Failed to create post: " + response.statusCode() + " - " + response.body());
         }
+    }
+    
+    /**
+     * Helper method to write text field to multipart stream
+     */
+    private void writeTextField(ByteArrayOutputStream outputStream, String boundary, 
+                                String fieldName, String value, String lineFeed) throws IOException {
+        outputStream.write(("--" + boundary + lineFeed).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(("Content-Disposition: form-data; name=\"" + fieldName + "\"" + lineFeed).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(("Content-Type: text/plain; charset=UTF-8" + lineFeed).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(lineFeed.getBytes(StandardCharsets.UTF_8));
+        outputStream.write(value.getBytes(StandardCharsets.UTF_8));
+        outputStream.write(lineFeed.getBytes(StandardCharsets.UTF_8));
+    }
+    
+    /**
+     * Helper method to write file field to multipart stream
+     */
+    private void writeFileField(ByteArrayOutputStream outputStream, String boundary, 
+                               String fieldName, File file, String lineFeed) throws IOException {
+        String mimeType = Files.probeContentType(file.toPath());
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
+        
+        outputStream.write(("--" + boundary + lineFeed).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + file.getName() + "\"" + lineFeed).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(("Content-Type: " + mimeType + lineFeed).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(("Content-Transfer-Encoding: binary" + lineFeed).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(lineFeed.getBytes(StandardCharsets.UTF_8));
+        
+        // Write file bytes directly
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        }
+        
+        outputStream.write(lineFeed.getBytes(StandardCharsets.UTF_8));
     }
     
     /**

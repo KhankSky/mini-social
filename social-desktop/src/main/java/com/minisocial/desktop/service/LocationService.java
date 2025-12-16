@@ -39,7 +39,7 @@ public class LocationService {
         }
         
         String encodedQuery = URLEncoder.encode(query.trim(), StandardCharsets.UTF_8);
-        String url = String.format("%s/api/locations/search?q=%s&limit=%d", 
+        String url = String.format("%s/locations/search?q=%s&limit=%d", 
                 AppConfig.BASE_URL, encodedQuery, limit != null ? limit : 5);
         
         HttpRequest request = HttpRequest.newBuilder()
@@ -66,7 +66,7 @@ public class LocationService {
      * @return Location information
      */
     public LocationDTO reverseGeocode(Double lat, Double lon) throws IOException, InterruptedException {
-        String url = String.format("%s/api/locations/reverse?lat=%f&lon=%f", 
+        String url = String.format("%s/locations/reverse?lat=%f&lon=%f", 
                 AppConfig.BASE_URL, lat, lon);
         
         HttpRequest request = HttpRequest.newBuilder()
@@ -86,4 +86,4 @@ public class LocationService {
             throw new IOException("Failed to reverse geocode: " + response.statusCode());
         }
     }
-}
+} 

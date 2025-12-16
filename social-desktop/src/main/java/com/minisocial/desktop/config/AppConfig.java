@@ -2,7 +2,7 @@ package com.minisocial.desktop.config;
 
 public class AppConfig {
     public static final String BASE_URL = "http://localhost:9090/api";
-    public static final String AUTH_TOKEN = "Bearer your_token_here"; // Thay bằng token thực tế
+    public static final String AUTH_TOKEN = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTdGV2ZUBleGFtcGxlLmNvbSIsImV4cCI6MTc2NjIxMDk2MywiaWF0IjoxNzY1ODUwOTYzLCJ1c2VyIjoidGVzdCJ9.oLDR3hhczenXLRD4zbrtIpBXO3CuC35z4OngtWpUPIffME9CRxC0Pva3sQH0u4d1hOv-PiRa_T0gNG0Ao1y9LA"; // Thay bằng token thực tế
     public static final String POSTS_ENDPOINT = BASE_URL + "/posts";
     public static final String COMMENTS_ENDPOINT = BASE_URL + "/posts/%d/comments"; 
     public static final String LOCATIONS_ENDPOINT = BASE_URL + "/locations";
