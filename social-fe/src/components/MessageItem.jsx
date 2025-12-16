@@ -1,10 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs from "dayjs";
-import { FiCheck } from "react-icons/fi";
+import { FiCheck, FiMoreVertical, FiEdit2, FiX, FiCheck as FiCheckIcon } from "react-icons/fi";
 
-const MessageItem = ({ message, isOwn, userAvatar, myAvatar }) => {
+const MessageItem = ({ message, isOwn, userAvatar, myAvatar, onEditMessage }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState(message.content);
+    const [showActions, setShowActions] = useState(false);
+
+    const handleSave = () => {
+        if (editContent.trim() !== message.content) {
+            onEditMessage(message.id, editContent);
+        }
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setEditContent(message.content);
+        setIsEditing(false);
+    };
+
     return (
-        <div className={`flex w-full ${isOwn ? "justify-end" : "justify-start"} group`}>
+        <div
+            className={`flex w-full ${isOwn ? "justify-end" : "justify-start"} group relative`}
+            onMouseEnter={() => setShowActions(true)}
+            onMouseLeave={() => setShowActions(false)}
+        >
             <div className={`flex max-w-[75%] gap-3 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
                 {/* Avatar */}
                 <div className="flex-shrink-0 self-end">
@@ -17,30 +37,44 @@ const MessageItem = ({ message, isOwn, userAvatar, myAvatar }) => {
 
                 {/* Bubble Container */}
                 <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}>
-                    {/* Name (Optional, maybe for groups, skip for 1-1 to keep clean) */}
-                    {/* <span className="text-xs text-gray-400 mb-1 ml-1">{isOwn ? "You" : message.senderName}</span> */}
 
                     {/* Bubble */}
                     <div
                         className={`relative px-5 py-3 shadow-sm text-[15px] leading-relaxed break-words ${isOwn
-                                ? "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-2xl rounded-br-none"
-                                : "bg-gray-100 text-gray-800 rounded-2xl rounded-bl-none"
+                            ? "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-2xl rounded-br-none"
+                            : "bg-gray-100 text-gray-800 rounded-2xl rounded-bl-none"
                             }`}
                     >
-                        {message.content}
-
-                        {/* Attachments */}
-                        {message.attachments && message.attachments.length > 0 && (
-                            <div className="mt-3 flex flex-col gap-2">
-                                {message.attachments.map((url, index) => (
-                                    <img
-                                        key={index}
-                                        src={`http://localhost:9090${url}`}
-                                        alt="attachment"
-                                        className="max-w-full rounded-lg border border-white/20"
-                                    />
-                                ))}
+                        {isEditing ? (
+                            <div className="flex flex-col gap-2 min-w-[200px]">
+                                <textarea
+                                    value={editContent}
+                                    onChange={(e) => setEditContent(e.target.value)}
+                                    className="w-full bg-white/10 text-white border border-white/20 rounded p-2 focus:outline-none focus:ring-1 focus:ring-white/50 text-sm"
+                                    rows={2}
+                                />
+                                <div className="flex justify-end gap-2">
+                                    <button onClick={handleCancel} className="p-1 hover:bg-white/10 rounded"><FiX size={14} /></button>
+                                    <button onClick={handleSave} className="p-1 hover:bg-white/10 rounded"><FiCheckIcon size={14} /></button>
+                                </div>
                             </div>
+                        ) : (
+                            <>
+                                {message.content}
+                                {/* Attachments */}
+                                {message.attachments && message.attachments.length > 0 && (
+                                    <div className="mt-3 flex flex-col gap-2">
+                                        {message.attachments.map((url, index) => (
+                                            <img
+                                                key={index}
+                                                src={`http://localhost:9090${url}`}
+                                                alt="attachment"
+                                                className="max-w-full rounded-lg border border-white/20"
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -56,6 +90,19 @@ const MessageItem = ({ message, isOwn, userAvatar, myAvatar }) => {
                         )}
                     </div>
                 </div>
+
+                {/* Actions Button */}
+                {isOwn && !isEditing && (
+                    <div className={`self-center opacity-0 group-hover:opacity-100 transition-opacity ${showActions ? 'visible' : 'invisible'}`}>
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-gray-100 rounded-full transition-colors"
+                            title="Edit"
+                        >
+                            <FiEdit2 size={16} />
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

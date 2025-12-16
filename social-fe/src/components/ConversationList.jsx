@@ -7,6 +7,7 @@ dayjs.extend(relativeTime);
 
 const ConversationList = ({ conversations, selectedUserId, onSelectUser, onNewMessage, onlineUsers = [] }) => {
     const [activeTab, setActiveTab] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const getInitials = (name) => {
         return name ? name.substring(0, 2).toUpperCase() : "U";
@@ -38,6 +39,8 @@ const ConversationList = ({ conversations, selectedUserId, onSelectUser, onNewMe
                     <input
                         type="text"
                         placeholder="Search here..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder-gray-400"
                     />
                     <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs border border-gray-200 rounded px-1.5 py-0.5">⌘/</span>
@@ -96,8 +99,8 @@ const ConversationList = ({ conversations, selectedUserId, onSelectUser, onNewMe
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${activeTab === tab
-                                    ? 'bg-gray-100 text-gray-800'
-                                    : 'text-gray-400 hover:text-gray-600'
+                                ? 'bg-gray-100 text-gray-800'
+                                : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             {tab}
@@ -108,22 +111,39 @@ const ConversationList = ({ conversations, selectedUserId, onSelectUser, onNewMe
 
             {/* List */}
             <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-1 custom-scrollbar">
-                {conversations.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <FiEdit size={24} className="text-gray-400" />
-                        </div>
-                        <p className="text-gray-500 text-sm mb-2">No conversations yet</p>
-                        <p className="text-gray-400 text-xs">Click the + button to start chatting</p>
-                    </div>
-                ) : (
-                    conversations.map((item) => (
+                {(() => {
+                    const filteredConversations = conversations.filter(conv => {
+                        if (!searchQuery) return true;
+                        const query = searchQuery.toLowerCase();
+                        return (
+                            conv.username?.toLowerCase().includes(query) ||
+                            conv.lastMessage?.toLowerCase().includes(query)
+                        );
+                    });
+
+                    if (filteredConversations.length === 0) {
+                        return (
+                            <div className="flex flex-col items-center justify-center py-12 text-center">
+                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                    <FiSearch size={24} className="text-gray-400" />
+                                </div>
+                                <p className="text-gray-500 text-sm mb-2">
+                                    {searchQuery ? 'No results found' : 'No conversations yet'}
+                                </p>
+                                <p className="text-gray-400 text-xs">
+                                    {searchQuery ? 'Try a different search term' : 'Click the + button to start chatting'}
+                                </p>
+                            </div>
+                        );
+                    }
+
+                    return filteredConversations.map((item) => (
                         <div
                             key={item.userId}
                             onClick={() => onSelectUser(item)}
                             className={`group p-3 rounded-2xl cursor-pointer transition-all duration-200 flex items-start gap-3 ${selectedUserId === item.userId
-                                    ? 'bg-blue-50/50'
-                                    : 'hover:bg-gray-50'
+                                ? 'bg-blue-50/50'
+                                : 'hover:bg-gray-50'
                                 }`}
                         >
                             {/* Avatar */}
@@ -163,8 +183,8 @@ const ConversationList = ({ conversations, selectedUserId, onSelectUser, onNewMe
                                 </div>
                             </div>
                         </div>
-                    ))
-                )}
+                    ));
+                })()}
             </div>
         </div>
     );
