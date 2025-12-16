@@ -6,7 +6,7 @@ import PostCard from '../components/feed/PostCard.jsx';
 import httpClient from '../config/HttpClient';
 import { fetchPosts } from '../services/post';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 50;
 
 const Feed = () => {
   const [user, setUser] = useState(null);
@@ -62,12 +62,6 @@ const Feed = () => {
                 className={activeTab === 'Recents' ? 'text-black font-semibold border-b-2 border-black pb-1' : 'text-gray-400 hover:text-gray-600'}
               >
                 Recents
-              </button>
-              <button 
-                onClick={() => setActiveTab('Friends')}
-                className={activeTab === 'Friends' ? 'text-black font-semibold border-b-2 border-black pb-1' : 'text-gray-400 hover:text-gray-600'}
-              >
-                Friends
               </button>
             </div>
           </div>

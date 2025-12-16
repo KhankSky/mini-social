@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.minisocial.desktop.view.login.LoginController"
+           prefWidth="960" prefHeight="640"
+           styleClass="login-root">
+    <Pane styleClass="login-blobs"/>
+    <VBox alignment="CENTER" spacing="20">
+        <padding>
+            <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+        </padding>
+        <VBox spacing="12" alignment="CENTER"
+              maxWidth="420"
+              styleClass="glass-card">
+            <Label text="Welcome Back"
+                   styleClass="title"/>
+            <Label text="Sign in to continue to MiniSocial"
+                   styleClass="subtitle"/>
+
+            <Label fx:id="errorLabel"
+                   text="Invalid credentials"
+                   visible="false"
+                   styleClass="error-label"/>
+
+            <VBox spacing="8" prefWidth="360">
+                <Label text="Email or Username" styleClass="input-label"/>
+                <TextField fx:id="usernameField"
+                           promptText="Enter your email or username"
+                           styleClass="input-control"/>
+            </VBox>
+
+            <VBox spacing="8" prefWidth="360">
+                <Label text="Password" styleClass="input-label"/>
+                <PasswordField fx:id="passwordField"
+                               promptText="Enter your password"
+                               styleClass="input-control"/>
+            </VBox>
+
+            <Button fx:id="loginButton"
+                    text="Sign In"
+                    onAction="#handleSignIn"
+                    maxWidth="360"
+                    styleClass="primary-button"/>
+
+            <ProgressIndicator fx:id="spinner" prefWidth="32" prefHeight="32"/>
+
+              <HBox spacing="4" alignment="CENTER">
+                <Label text="Don't have an account? " styleClass="subtitle"/>
+                <Button text="Create Account"
+                        onAction="#handleGoToRegister"
+                        styleClass="link-button-text"/>
+            </HBox>
+        </VBox>
+        <Label text="© 2025 MiniSocial. All rights reserved."
+               styleClass="footer"/>
+    </VBox>
+</StackPane>
