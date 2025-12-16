@@ -110,7 +110,7 @@ public class MessageService {
 
         List<Message> messages = messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderIdOrderBySentAtAsc(
                 currentUser.getId(), userId,
-                userId, currentUser.getId());
+                currentUser.getId(), userId);
 
         return messages.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
