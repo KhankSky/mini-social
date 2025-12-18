@@ -6,4 +6,4 @@ services:
     container_name: social-fe
     restart: always
     # Dùng mạng Host để tránh lỗi kết nối (giống Backend)
-    network_mode: "host"    # Port 3000 sẽ được mở trực tiếp trên Host
+    network_mode: "host"    # Port 5173 sẽ được mở trực tiếp trên Host
