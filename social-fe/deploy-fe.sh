@@ -18,4 +18,4 @@ else
 fi
 
 echo "=== Deployment Complete! ==="
-echo "Frontend is running on port 3000"
+echo "Frontend is running on port 5173"
