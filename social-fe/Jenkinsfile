@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Thông tin Image
+        DOCKER_IMAGE = 'khanksky/social-fe'
+        DOCKER_TAG = 'latest'
+        DOCKER_CRED_ID = 'docker-hub-credentials'
+        
+        // Thông tin Server Deploy
+        APP_SERVER_IP = '192.168.1.202'
+        APP_SERVER_USER = 'khanhsky'
+        DEPLOY_DIR = '~/deploy/social-fe'
+        
+        // Biến môi trường cho Frontend (API URL)
+        // Lưu ý: Cần fix cứng hoặc lấy từ Jenkins Credential nếu muốn bảo mật
+        VITE_API_BASE_URL = 'http://192.168.1.202:9090/api'
+    }
+    
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    echo '=== Building Docker Image ==='
+                    dir('social-fe') {
+                        // Truyền biến build-arg vào
+                        dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}", "--build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} .")
+                    }
+                }
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    echo '=== Pushing to Docker Hub ==='
+                    docker.withRegistry('', DOCKER_CRED_ID) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy to App Server') {
+            steps {
+                echo '=== Deploying to App Server ==='
+                sshagent(['app-server-ssh-key']) {
+                    sh "ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} 'cd ${DEPLOY_DIR} && ./deploy-fe.sh'"
+                }
+            }
+        }
+    }
+}
