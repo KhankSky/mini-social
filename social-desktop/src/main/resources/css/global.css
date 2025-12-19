@@ -112,3 +112,31 @@
     -fx-text-fill: #4f46e5;
     -fx-underline: true;
 }
+
+.tab-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b7280;
+    -fx-font-weight: 600;
+    -fx-background-radius: 12;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.tab-button:selected {
+    -fx-background-color: linear-gradient(to right, #9333ea, #2563eb);
+    -fx-text-fill: white;
+}
+
+.tab-button:hover:not(:selected) {
+    -fx-background-color: #f3f4f6;
+}
+
+.conversation-item:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.conversation-item-active {
+    -fx-background-color: #eef2ff;
+    -fx-border-color: #6366f1;
+    -fx-border-width: 0 0 0 4;
+}

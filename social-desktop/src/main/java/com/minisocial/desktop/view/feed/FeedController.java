@@ -31,25 +31,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FeedController {
-    private final AppNavigator navigator;
-    private final UserSession session;
     private final PostService postService;
     private final CommentService commentService;
     private final LocationService locationService;
     private final ObservableList<PostDTO> posts = FXCollections.observableArrayList();
     private final Image defaultAvatar = new Image("https://api.dicebear.com/7.x/avataaars/png?seed=User");
 
-    @FXML private TextArea composeText;
-    @FXML private VBox postsContainer;
-    @FXML private Button publishButton;
-    @FXML private ScrollPane scrollPane;
-    @FXML private Button uploadImageButton;
-    @FXML private HBox selectedImagesBox;
-    @FXML private HBox locationContainer;
-    @FXML private TextField locationField;
-    @FXML private Button searchLocationButton;
-    @FXML private Button clearLocationButton;
-    @FXML private VBox locationResultsBox;
+    @FXML
+    private TextArea composeText;
+    @FXML
+    private VBox postsContainer;
+    @FXML
+    private Button publishButton;
+    @FXML
+    private ScrollPane scrollPane;
+    @FXML
+    private Button uploadImageButton;
+    @FXML
+    private HBox selectedImagesBox;
+    @FXML
+    private HBox locationContainer;
+    @FXML
+    private TextField locationField;
+    @FXML
+    private Button searchLocationButton;
+    @FXML
+    private Button clearLocationButton;
+    @FXML
+    private VBox locationResultsBox;
 
     private List<File> selectedImages = new ArrayList<>();
     private LocationDTO selectedLocation = null;
@@ -58,8 +67,6 @@ public class FeedController {
     private boolean isLoading = false;
 
     public FeedController(AppNavigator navigator, UserSession session) {
-        this.navigator = navigator;
-        this.session = session;
         this.postService = new PostService();
         this.commentService = new CommentService();
         this.locationService = new LocationService();
@@ -123,7 +130,7 @@ public class FeedController {
 
     private void displayLocationResults(List<LocationDTO> locations) {
         locationResultsBox.getChildren().clear();
-        
+
         if (locations == null || locations.isEmpty()) {
             Label noResults = new Label("No locations found");
             noResults.getStyleClass().add("location-result-item");
@@ -134,7 +141,7 @@ public class FeedController {
                 locationResultsBox.getChildren().add(locationBtn);
             }
         }
-        
+
         locationResultsBox.setManaged(true);
         locationResultsBox.setVisible(true);
     }
@@ -143,33 +150,31 @@ public class FeedController {
         Button btn = new Button();
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.getStyleClass().add("location-result-item");
-        
+
         FontIcon icon = new FontIcon("fas-map-marker-alt");
         icon.setIconSize(14);
         icon.setIconColor(javafx.scene.paint.Color.web("#6366f1"));
-        
-        Label nameLabel = new Label(location.getShortName() != null ? 
-                location.getShortName() : location.getName());
+
+        Label nameLabel = new Label(location.getShortName() != null ? location.getShortName() : location.getName());
         nameLabel.setStyle("-fx-font-weight: bold;");
-        
+
         Label displayLabel = new Label(location.getDisplayName());
         displayLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 11px;");
         displayLabel.setWrapText(true);
-        
+
         VBox textBox = new VBox(2, nameLabel, displayLabel);
         HBox content = new HBox(8, icon, textBox);
         content.setAlignment(Pos.CENTER_LEFT);
         btn.setGraphic(content);
-        
+
         btn.setOnAction(e -> selectLocation(location));
-        
+
         return btn;
     }
 
     private void selectLocation(LocationDTO location) {
         selectedLocation = location;
-        locationField.setText(location.getShortName() != null ? 
-                location.getShortName() : location.getName());
+        locationField.setText(location.getShortName() != null ? location.getShortName() : location.getName());
         hideLocationResults();
     }
 
@@ -184,9 +189,8 @@ public class FeedController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Images");
         fileChooser.getExtensionFilters().add(
-            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
-        
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
+
         List<File> files = fileChooser.showOpenMultipleDialog(uploadImageButton.getScene().getWindow());
         if (files != null) {
             selectedImages.addAll(files);
@@ -196,35 +200,35 @@ public class FeedController {
 
     private void updateSelectedImagesUI() {
         selectedImagesBox.getChildren().clear();
-        
+
         if (selectedImages.isEmpty()) {
             selectedImagesBox.setManaged(false);
             selectedImagesBox.setVisible(false);
             return;
         }
-        
+
         selectedImagesBox.setManaged(true);
         selectedImagesBox.setVisible(true);
-        
+
         for (File file : selectedImages) {
             HBox imageItemBox = new HBox(8);
             imageItemBox.setAlignment(Pos.CENTER_LEFT);
             imageItemBox.setStyle("-fx-background-color: white; -fx-background-radius: 6; -fx-padding: 8;");
-            
+
             FontIcon imageIcon = new FontIcon("fas-image");
             imageIcon.setIconSize(20);
             imageIcon.setIconColor(javafx.scene.paint.Color.web("#6366f1"));
-            
+
             Label nameLabel = new Label(file.getName());
             nameLabel.setStyle("-fx-font-size: 13px;");
-            
+
             long sizeInKB = file.length() / 1024;
             Label sizeLabel = new Label(String.format("(%d KB)", sizeInKB));
             sizeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #6b7280;");
-            
+
             Region spacer = new Region();
             HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-            
+
             Button removeBtn = new Button();
             FontIcon removeIcon = new FontIcon("fas-times");
             removeIcon.setIconSize(14);
@@ -235,7 +239,7 @@ public class FeedController {
                 selectedImages.remove(file);
                 updateSelectedImagesUI();
             });
-            
+
             imageItemBox.getChildren().addAll(imageIcon, nameLabel, sizeLabel, spacer, removeBtn);
             selectedImagesBox.getChildren().add(imageItemBox);
         }
@@ -244,15 +248,16 @@ public class FeedController {
     @FXML
     private void handlePublish() {
         String content = composeText.getText() != null ? composeText.getText().trim() : "";
-        
+
         if (content.isEmpty()) {
             showAlert("Error", "Please enter some content for your post.");
             return;
         }
 
-        String locationStr = selectedLocation != null ? 
-                (selectedLocation.getShortName() != null ? selectedLocation.getShortName() : selectedLocation.getName()) : 
-                null;
+        String locationStr = selectedLocation != null
+                ? (selectedLocation.getShortName() != null ? selectedLocation.getShortName()
+                        : selectedLocation.getName())
+                : null;
 
         publishButton.setDisable(true);
         publishButton.setText("Publishing...");
@@ -287,7 +292,8 @@ public class FeedController {
     }
 
     private void loadPosts() {
-        if (isLoading) return;
+        if (isLoading)
+            return;
         isLoading = true;
 
         Label loadingLabel = new Label("Loading posts...");
@@ -332,7 +338,7 @@ public class FeedController {
                 avatarImage = defaultAvatar;
             }
         }
-        
+
         ImageView avatar = new ImageView(avatarImage);
         avatar.setFitWidth(48);
         avatar.setFitHeight(48);
@@ -350,9 +356,9 @@ public class FeedController {
 
         String timeAgo = formatTimeAgo(post.getCreatedAt());
         Label timeLabel = new Label(timeAgo);
-        
+
         HBox metaBox = new HBox(6, timeLabel);
-        
+
         if (post.getLocation() != null && !post.getLocation().isEmpty()) {
             FontIcon locationIcon = new FontIcon("fas-map-marker-alt");
             locationIcon.setIconSize(12);
@@ -361,7 +367,7 @@ public class FeedController {
             Label locationLabel = new Label(post.getLocation());
             metaBox.getChildren().addAll(dot, locationIcon, locationLabel);
         }
-        
+
         metaBox.setAlignment(Pos.CENTER_LEFT);
         metaBox.getStyleClass().add("post-meta");
 
@@ -370,21 +376,23 @@ public class FeedController {
         content.getStyleClass().add("post-content");
         VBox cardContent = new VBox(12);
         cardContent.getChildren().addAll(authorBox, metaBox, content);
-        
+
         if (post.getAttachments() != null && !post.getAttachments().isEmpty()) {
             VBox imagesBox = buildPostImagesView(post.getAttachments());
             cardContent.getChildren().add(imagesBox);
         }
 
-        Button likeBtn = pillButton("fas-heart", "Like (" + (post.getLikeCount() != null ? post.getLikeCount() : 0) + ")");
-        Button commentBtn = pillButton("fas-comment", "Comment (" + (post.getCommentCount() != null ? post.getCommentCount() : 0) + ")");
+        Button likeBtn = pillButton("fas-heart",
+                "Like (" + (post.getLikeCount() != null ? post.getLikeCount() : 0) + ")");
+        Button commentBtn = pillButton("fas-comment",
+                "Comment (" + (post.getCommentCount() != null ? post.getCommentCount() : 0) + ")");
         Button shareBtn = pillButton("fas-share", "Share");
-        
+
         commentBtn.setOnAction(e -> showCommentsDialog(post));
-        
+
         HBox actions = new HBox(16, likeBtn, commentBtn, shareBtn);
         actions.setAlignment(Pos.CENTER_LEFT);
-        
+
         cardContent.getChildren().add(actions);
 
         // Card
@@ -404,11 +412,11 @@ public class FeedController {
         List<PostDTO.AttachmentDTO> imageAttachments = attachments.stream()
                 .filter(att -> att.getFileType() != null && att.getFileType().startsWith("image/"))
                 .toList();
-        
+
         if (imageAttachments.isEmpty()) {
             return imagesBox;
         }
-        
+
         if (imageAttachments.size() == 1) {
             ImageView imageView = createPostImageView(imageAttachments.get(0).getFileUrl(), 600, 400);
             imagesBox.getChildren().add(imageView);
@@ -431,7 +439,7 @@ public class FeedController {
                 currentRow.getChildren().add(imageView);
             }
         }
-        
+
         return imagesBox;
     }
 
@@ -441,22 +449,22 @@ public class FeedController {
         imageView.setFitWidth(maxWidth);
         imageView.setFitHeight(maxHeight);
         imageView.setStyle("-fx-background-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);");
-        
+
         try {
             String fullImageUrl = AppConfig.getFullImageUrl(imageUrl);
-            
+
             if (fullImageUrl != null) {
                 System.out.println("Loading image from: " + fullImageUrl);
-                
+
                 Image image = new Image(fullImageUrl, true);
                 imageView.setImage(image);
-                
+
                 image.errorProperty().addListener((obs, oldError, newError) -> {
                     if (newError) {
                         System.err.println("Failed to load image: " + fullImageUrl);
                     }
                 });
-                
+
                 imageView.setOnMouseClicked(e -> {
                     System.out.println("Image clicked: " + fullImageUrl);
                 });
@@ -468,7 +476,7 @@ public class FeedController {
             System.err.println("Exception loading image: " + imageUrl);
             e.printStackTrace();
         }
-        
+
         return imageView;
     }
 
@@ -525,7 +533,7 @@ public class FeedController {
                     try {
                         CreateCommentRequest request = new CreateCommentRequest(commentText);
                         CommentDTO newComment = commentService.createComment(post.getId(), request);
-                        
+
                         Platform.runLater(() -> {
                             commentInput.clear();
                             commentsContainer.getChildren().add(0, buildCommentView(newComment));
@@ -558,7 +566,7 @@ public class FeedController {
                 avatarImage = defaultAvatar;
             }
         }
-        
+
         ImageView avatar = new ImageView(avatarImage);
         avatar.setFitWidth(32);
         avatar.setFitHeight(32);
@@ -566,7 +574,7 @@ public class FeedController {
 
         Label username = new Label("@" + comment.getUsername());
         username.setStyle("-fx-font-weight: bold;");
-        
+
         Label timeLabel = new Label(formatTimeAgo(comment.getCreatedAt()));
         timeLabel.setStyle("-fx-text-fill: gray; -fx-font-size: 10px;");
 
@@ -580,7 +588,7 @@ public class FeedController {
         commentBox.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 8;");
 
         VBox commentContainer = new VBox(commentBox);
-        
+
         if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
             VBox repliesBox = new VBox(4);
             repliesBox.setPadding(new Insets(0, 0, 0, 40));
@@ -609,16 +617,21 @@ public class FeedController {
     }
 
     private String formatTimeAgo(LocalDateTime dateTime) {
-        if (dateTime == null) return "Just now";
-        
+        if (dateTime == null)
+            return "Just now";
+
         Duration duration = Duration.between(dateTime, LocalDateTime.now());
         long seconds = duration.getSeconds();
 
-        if (seconds < 60) return "Just now";
-        if (seconds < 3600) return (seconds / 60) + "m ago";
-        if (seconds < 86400) return (seconds / 3600) + "h ago";
-        if (seconds < 604800) return (seconds / 86400) + "d ago";
-        
+        if (seconds < 60)
+            return "Just now";
+        if (seconds < 3600)
+            return (seconds / 60) + "m ago";
+        if (seconds < 86400)
+            return (seconds / 3600) + "h ago";
+        if (seconds < 604800)
+            return (seconds / 86400) + "d ago";
+
         return dateTime.format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
     }
 

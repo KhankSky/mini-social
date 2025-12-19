@@ -22,7 +22,7 @@
     </HBox>
 
     <VBox spacing="8">
-        <Button maxWidth="Infinity" styleClass="nav-button,primary-nav">
+        <Button maxWidth="Infinity" styleClass="nav-button,primary-nav" onAction="#handleFeed">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-newspaper" iconSize="16" iconColor="white"/>
@@ -30,7 +30,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button">
+        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleMessages">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-envelope" iconSize="16" iconColor="#1f2937"/>
@@ -46,7 +46,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button">
+        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleFriends">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#1f2937"/>
