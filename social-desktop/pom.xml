@@ -69,6 +69,30 @@
             <artifactId>ikonli-materialdesign2-pack</artifactId>
             <version>${ikonli.version}</version>
         </dependency>
+
+        <!-- WebSocket & STOMP -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>6.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+            <version>6.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus.bundles</groupId>
+            <artifactId>tyrus-standalone-client</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+        
+        <!-- SLF4J for logging (needed by Spring) -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.9</version>
+        </dependency>
     </dependencies>
 
     <build>

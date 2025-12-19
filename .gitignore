@@ -1,1 +1,26 @@
-/.idea/
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+.nb-gradle/
+
+# Build
+**/target/
+**/bin/
+**/build/
+.gradle/
+
+# Logs
+**/logs/
+*.log
+
+# Temp
+tmp/
+.temp/
+
+# Desktop specific
+social-desktop/hs_err_pid*
+social-desktop/replay_pid*

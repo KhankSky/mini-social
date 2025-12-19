@@ -52,13 +52,55 @@ public class LoginController {
 
         setLoading(true);
 
-        // Simulate quick auth and move to feed. Replace with real API later.
-        Platform.runLater(() -> {
-            session.setUsername(username);
-            session.setFullName(username);
-            setLoading(false);
-            navigator.showFeed();
-        });
+        new Thread(() -> {
+            try {
+                com.minisocial.desktop.service.AuthService authService = new com.minisocial.desktop.service.AuthService();
+                String token = authService.login(username, password);
+
+                // Set the token globally
+                com.minisocial.desktop.config.AppConfig.AUTH_TOKEN = "Bearer " + token;
+
+                // Get user details to populate session
+                java.util.Map<String, Object> userDetails = authService.getCurrentUserDetails(token);
+
+                Platform.runLater(() -> {
+                    if (userDetails != null) {
+                        Object idObj = userDetails.get("id");
+                        if (idObj instanceof Number idNum) {
+                            session.setUserId(idNum.longValue());
+                        } else if (idObj instanceof String idStr) {
+                            try {
+                                session.setUserId(Long.parseLong(idStr));
+                            } catch (NumberFormatException ignored) {
+                            }
+                        }
+
+                        String usernameVal = (String) userDetails.getOrDefault("username", "");
+                        session.setUsername(usernameVal);
+
+                        String fullNameVal = (String) userDetails.getOrDefault("fullName", usernameVal);
+                        session.setFullName(fullNameVal);
+                    } else {
+                        System.err.println("User details were null after successful login");
+                    }
+                    setLoading(false);
+                    navigator.showFeed();
+                });
+            } catch (Exception e) {
+                // Log exception for debugging
+                System.err.println("Login error: " + e.getMessage());
+                e.printStackTrace();
+
+                Platform.runLater(() -> {
+                    setLoading(false);
+                    String errorMsg = e.getMessage();
+                    if (errorMsg == null || errorMsg.trim().isEmpty()) {
+                        errorMsg = "An unexpected error occurred (" + e.getClass().getSimpleName() + ")";
+                    }
+                    showError("Login failed: " + errorMsg);
+                });
+            }
+        }).start();
     }
 
     @FXML
