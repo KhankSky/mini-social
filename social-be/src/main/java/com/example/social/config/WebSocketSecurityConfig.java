@@ -18,7 +18,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer {
 
@@ -34,28 +33,27 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                
+
                 if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
                     String authToken = accessor.getFirstNativeHeader("Authorization");
-                    
+
                     if (authToken != null && authToken.startsWith("Bearer ")) {
                         try {
                             String token = authToken.substring(7);
                             Jwt jwt = jwtDecoder.decode(token);
                             String email = jwt.getSubject();
-                            
+
                             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                                email, null, null
-                            );
+                                    email, null, null);
                             accessor.setUser(authentication);
-                            
+
                             System.out.println("STOMP CONNECT authenticated user: " + email);
                         } catch (Exception e) {
                             System.out.println("STOMP CONNECT authentication failed: " + e.getMessage());
                         }
                     }
                 }
-                
+
                 return message;
             }
         });

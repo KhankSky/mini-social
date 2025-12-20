@@ -71,6 +71,9 @@ public class MessageService {
         // uses email as principal
         messagingTemplate.convertAndSendToUser(receiver.getEmail(), "/queue/messages", resDto);
 
+        // Also notify sender to sync their other clients (e.g. desktop vs web)
+        messagingTemplate.convertAndSendToUser(sender.getEmail(), "/queue/messages", resDto);
+
         return resDto;
     }
 
@@ -94,11 +97,8 @@ public class MessageService {
         // Notify receiver via WebSocket
         messagingTemplate.convertAndSendToUser(message.getReceiver().getEmail(), "/queue/messages", resDto);
 
-        // Also notify sender to update their UI immediately (optional, but good for
-        // consistency across devices)
-        // actually sender gets the response from API, but if they have multiple tabs
-        // open...
-        // let's just stick to notifying receiver. Request/Response handles sender.
+        // Also notify sender to update their UI immediately/on all devices
+        messagingTemplate.convertAndSendToUser(message.getSender().getEmail(), "/queue/messages", resDto);
 
         return resDto;
     }

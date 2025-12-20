@@ -88,8 +88,32 @@ public class MessagesController {
 
             if (isRelated) {
                 Platform.runLater(() -> {
-                    messagesContainer.getChildren().add(createMessageBubble(newMessage));
-                    messageScrollPane.setVvalue(1.0);
+                    // Avoid duplicate messages if already added via REST response
+                    boolean alreadyExists = messagesContainer.getChildren().stream()
+                            .filter(node -> node instanceof HBox)
+                            .anyMatch(node -> {
+                                // This is a bit hacky but we can check the time and content if ID is
+                                // available
+                                // Better: Check if a message with the same ID is already there
+                                return false; // Default for now, handleSendMessage will be smarter
+                            });
+
+                    // Check if it's already in the container by ID
+                    // (Assuming we store the message ID in the bubble's properties)
+                    boolean exists = false;
+                    for (javafx.scene.Node node : messagesContainer.getChildren()) {
+                        if (node.getUserData() != null && node.getUserData().equals(newMessage.getId())) {
+                            exists = true;
+                            break;
+                        }
+                    }
+
+                    if (!exists) {
+                        javafx.scene.Node bubble = createMessageBubble(newMessage);
+                        bubble.setUserData(newMessage.getId());
+                        messagesContainer.getChildren().add(bubble);
+                        messageScrollPane.setVvalue(1.0);
+                    }
                 });
             }
         }
@@ -298,7 +322,9 @@ public class MessagesController {
                 Platform.runLater(() -> {
                     messagesContainer.getChildren().clear();
                     for (MessageDTO msg : messages) {
-                        messagesContainer.getChildren().add(createMessageBubble(msg));
+                        javafx.scene.Node bubble = createMessageBubble(msg);
+                        bubble.setUserData(msg.getId());
+                        messagesContainer.getChildren().add(bubble);
                     }
                     messageScrollPane.setVvalue(1.0);
                 });
@@ -410,8 +436,20 @@ public class MessagesController {
                 }
 
                 Platform.runLater(() -> {
-                    if (sentMsg != null) { // Only add if returned (text only), otherwise wait for WS
-                        messagesContainer.getChildren().add(createMessageBubble(sentMsg));
+                    if (sentMsg != null) {
+                        // Check if already added by WebSocket (unlikely but possible)
+                        boolean exists = false;
+                        for (javafx.scene.Node node : messagesContainer.getChildren()) {
+                            if (node.getUserData() != null && node.getUserData().equals(sentMsg.getId())) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            javafx.scene.Node bubble = createMessageBubble(sentMsg);
+                            bubble.setUserData(sentMsg.getId());
+                            messagesContainer.getChildren().add(bubble);
+                        }
                     }
                     messageInput.clear();
                     messageInput.setDisable(false);

@@ -151,7 +151,11 @@ const Messages = () => {
 
         try {
             const res = await sendMessage(tempData);
-            setMessages(prev => [...prev, res.data]);
+            setMessages(prev => {
+                const exists = prev.find(m => m.id === res.data.id);
+                if (exists) return prev;
+                return [...prev, res.data];
+            });
             loadConversations();
         } catch (error) {
             console.error("Failed to send message", error);
