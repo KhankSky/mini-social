@@ -28,10 +28,10 @@ public class LocationService {
     }
     
     /**
-     * Search locations by query string
-     * @param query Search query
-     * @param limit Maximum number of results
-     * @return List of locations
+     * 
+     * @param query 
+     * @param limit 
+     * @return 
      */
     public List<LocationDTO> searchLocations(String query, Integer limit) throws IOException, InterruptedException {
         if (query == null || query.trim().isEmpty()) {
@@ -39,7 +39,7 @@ public class LocationService {
         }
         
         String encodedQuery = URLEncoder.encode(query.trim(), StandardCharsets.UTF_8);
-        String url = String.format("%s/api/locations/search?q=%s&limit=%d", 
+        String url = String.format("%s/locations/search?q=%s&limit=%d", 
                 AppConfig.BASE_URL, encodedQuery, limit != null ? limit : 5);
         
         HttpRequest request = HttpRequest.newBuilder()
@@ -60,13 +60,13 @@ public class LocationService {
     }
     
     /**
-     * Reverse geocode - get location from coordinates
-     * @param lat Latitude
-     * @param lon Longitude
-     * @return Location information
+     * 
+     * @param lat 
+     * @param lon 
+     * @return 
      */
     public LocationDTO reverseGeocode(Double lat, Double lon) throws IOException, InterruptedException {
-        String url = String.format("%s/api/locations/reverse?lat=%f&lon=%f", 
+        String url = String.format("%s/locations/reverse?lat=%f&lon=%f", 
                 AppConfig.BASE_URL, lat, lon);
         
         HttpRequest request = HttpRequest.newBuilder()
