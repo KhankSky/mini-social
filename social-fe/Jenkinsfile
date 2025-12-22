@@ -65,10 +65,3 @@ pipeline {
         }
     }
 }
-                sshagent(['app-server-ssh-key']) {
-                    sh "ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} 'cd ${DEPLOY_DIR} && ./deploy-fe.sh'"
-                }
-            }
-        }
-    }
-}

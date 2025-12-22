@@ -75,10 +75,3 @@ pipeline {
         }
     }
 }
-                    // SSH vào server và chạy script deploy có sẵn
-                    sh "ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} 'cd ${DEPLOY_DIR} && ./deploy.sh'"
-                }
-            }
-        }
-    }
-}
