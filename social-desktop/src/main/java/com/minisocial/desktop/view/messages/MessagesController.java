@@ -88,10 +88,23 @@ public class MessagesController {
     private void initialize() {
         loadConversations();
         connectWebSocket();
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterConversations(newValue));
     }
 
     private void connectWebSocket() {
         webSocketService.connect(this::handleNewMessage, this::handleCallReceived, notification -> {
+            Platform.runLater(() -> {
+                if (notification instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> data = (Map<String, Object>) notification;
+                    String msg = (String) data.getOrDefault("content", "New Notification");
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Notification");
+                    alert.setHeaderText(null);
+                    alert.setContentText(msg);
+                    alert.show();
+                }
+            });
         });
     }
 
@@ -132,18 +145,7 @@ public class MessagesController {
 
             if (isRelated) {
                 Platform.runLater(() -> {
-                    // Avoid duplicate messages if already added via REST response
-                    boolean alreadyExists = messagesContainer.getChildren().stream()
-                            .filter(node -> node instanceof HBox)
-                            .anyMatch(node -> {
-                                // This is a bit hacky but we can check the time and content if ID is
-                                // available
-                                // Better: Check if a message with the same ID is already there
-                                return false; // Default for now, handleSendMessage will be smarter
-                            });
-
                     // Check if it's already in the container by ID
-                    // (Assuming we store the message ID in the bubble's properties)
                     boolean exists = false;
                     for (javafx.scene.Node node : messagesContainer.getChildren()) {
                         if (node.getUserData() != null && node.getUserData().equals(newMessage.getId())) {
@@ -554,11 +556,22 @@ public class MessagesController {
     private void sendVoiceMessage() {
         new Thread(() -> {
             try {
+                ReqSendMessageDTO req = new ReqSendMessageDTO(activeConversation.getUserId(), "");
                 List<File> files = new java.util.ArrayList<>();
                 files.add(audioFile);
-                messageService.sendMessageWithFiles(activeConversation.getUserId(), "", files);
+                req.setFiles(files);
+
+                messageService.sendMessage(req);
 
                 Platform.runLater(() -> {
+                    // loadMessages(activeConversation.getUserId());
+                    // Don't need to load messages, let websocket handle it or handleSendMessage
+                    // does it
+                    // But actually sendVoiceMessage is separate, so we might want to ensure it
+                    // shows up.
+                    // The sendMessage returns a MessageDTO, but we ignored it above.
+                    // Ideally we use the returned message to append to UI.
+                    // For now, reload is fine.
                     loadMessages(activeConversation.getUserId());
                 });
             } catch (Exception e) {
@@ -580,18 +593,16 @@ public class MessagesController {
 
         new Thread(() -> {
             try {
-                MessageDTO sentMsg;
+                ReqSendMessageDTO req = new ReqSendMessageDTO(activeConversation.getUserId(), content);
                 if (!filesToSend.isEmpty()) {
-                    messageService.sendMessageWithFiles(activeConversation.getUserId(), content, filesToSend);
-                    sentMsg = null; // WebSocket will deliver the message with full details (urls)
-                } else {
-                    ReqSendMessageDTO req = new ReqSendMessageDTO(activeConversation.getUserId(), content);
-                    sentMsg = messageService.sendMessage(req);
+                    req.setFiles(filesToSend);
                 }
+
+                MessageDTO sentMsg = messageService.sendMessage(req);
 
                 Platform.runLater(() -> {
                     if (sentMsg != null) {
-                        // Check if already added by WebSocket (unlikely but possible)
+                        // Check if already added by WebSocket
                         boolean exists = false;
                         for (javafx.scene.Node node : messagesContainer.getChildren()) {
                             if (node.getUserData() != null && node.getUserData().equals(sentMsg.getId())) {

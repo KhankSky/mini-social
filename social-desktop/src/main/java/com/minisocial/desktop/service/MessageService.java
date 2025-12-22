@@ -30,32 +30,6 @@ public class MessageService {
         this.objectMapper.registerModule(new JavaTimeModule());
     }
 
-    public void sendMessageWithFiles(Long receiverId, String content, List<java.io.File> files)
-            throws IOException, InterruptedException {
-        String url = AppConfig.BASE_URL + "/messages";
-
-        com.minisocial.desktop.utils.MultipartBodyPublisher publisher = new com.minisocial.desktop.utils.MultipartBodyPublisher();
-        publisher.addPart("receiverId", receiverId.toString());
-        publisher.addPart("content", content);
-
-        for (java.io.File file : files) {
-            publisher.addPart("files", file.toPath());
-        }
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Authorization", AppConfig.AUTH_TOKEN)
-                .header("Content-Type", "multipart/form-data; boundary=" + publisher.getBoundary())
-                .POST(publisher.build())
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200 && response.statusCode() != 201) {
-            throw new IOException("Failed to send message: " + response.body());
-        }
-    }
-
     public List<ConversationDTO> getConversations() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(AppConfig.MESSAGES_ENDPOINT + "/conversations"))

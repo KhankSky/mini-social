@@ -6,7 +6,4 @@
 **/.settings/
 **/.classpath
 **/.project
-social-desktop/src/main/resources/view/search/
-social-desktop/src/main/resources/view/settings/
-social-desktop/src/main/java/com/minisocial/desktop/view/search/
-social-desktop/src/main/java/com/minisocial/desktop/view/settings/
+

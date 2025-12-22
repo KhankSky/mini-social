@@ -7,7 +7,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -40,9 +43,50 @@ public class SettingsController {
     private Long userId; // We need to know current user ID
 
     @FXML
+    private VBox profileView;
+    @FXML
+    private VBox securityView;
+    @FXML
+    private Button profileBtn;
+    @FXML
+    private Button securityBtn;
+
+    @FXML
     public void initialize() {
         // Load user profile
         loadUserProfile();
+        // Default view
+        handleShowProfile();
+    }
+
+    @FXML
+    private void handleShowProfile() {
+        if (profileView != null) {
+            profileView.setVisible(true);
+            profileView.setManaged(true);
+            securityView.setVisible(false);
+            securityView.setManaged(false);
+            updateSidebarState(profileBtn);
+        }
+    }
+
+    @FXML
+    private void handleShowSecurity() {
+        if (securityView != null) {
+            profileView.setVisible(false);
+            profileView.setManaged(false);
+            securityView.setVisible(true);
+            securityView.setManaged(true);
+            updateSidebarState(securityBtn);
+        }
+    }
+
+    private void updateSidebarState(Button active) {
+        if (profileBtn == null || securityBtn == null)
+            return;
+        profileBtn.getStyleClass().remove("selected");
+        securityBtn.getStyleClass().remove("selected");
+        active.getStyleClass().add("selected");
     }
 
     private void loadUserProfile() {

@@ -4,74 +4,96 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
-<VBox spacing="20" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.minisocial.desktop.view.settings.SettingsController">
+<StackPane styleClass="root" stylesheets="@../../css/settings.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.minisocial.desktop.view.settings.SettingsController">
     <padding>
-        <Insets bottom="30" left="40" right="40" top="30" />
+        <Insets bottom="40" left="40" right="40" top="40" />
     </padding>
 
-    <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Settings" />
-
-    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-        <tabs>
-            <Tab text="Edit Profile">
-                <content>
-                    <VBox spacing="16">
-                        <padding>
-                            <Insets top="20" />
-                        </padding>
-                        
-                        <VBox spacing="8">
-                            <Label style="-fx-font-weight: bold;" text="Username" />
-                            <TextField fx:id="usernameField" promptText="Enter username" />
-                        </VBox>
-
-                        <VBox spacing="8">
-                            <Label style="-fx-font-weight: bold;" text="Bio" />
-                            <TextArea fx:id="bioArea" prefHeight="100" promptText="Tell something about yourself..." wrapText="true" />
-                        </VBox>
-
-                        <VBox spacing="8">
-                            <Label style="-fx-font-weight: bold;" text="Avatar URL" />
-                            <TextField fx:id="avatarUrlField" promptText="https://example.com/avatar.png" />
-                        </VBox>
-
-                        <Button onAction="#handleProfileSave" style="-fx-background-color: black; -fx-text-fill: white; -fx-padding: 10 20;" text="Save Changes" />
-                    </VBox>
-                </content>
-            </Tab>
+    <HBox spacing="0" styleClass="settings-container">
+        <!-- Sidebar -->
+        <VBox minWidth="240" prefWidth="240" spacing="8" styleClass="sidebar">
+            <padding>
+                <Insets bottom="24" left="0" right="0" top="32" />
+            </padding>
+            <Label style="-fx-padding: 0 0 0 24; -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #111827;" text="Settings" />
             
-            <Tab text="Security">
-                <content>
-                    <VBox spacing="16">
-                        <padding>
-                            <Insets top="20" />
-                        </padding>
+            <VBox spacing="4" style="-fx-padding: 24 0 0 0;">
+                <Button fx:id="profileBtn" maxWidth="Infinity" onAction="#handleShowProfile" styleClass="sidebar-button" text="Edit Profile" />
+                <Button fx:id="securityBtn" maxWidth="Infinity" onAction="#handleShowSecurity" styleClass="sidebar-button" text="Security" />
+                <Button disable="true" maxWidth="Infinity" styleClass="sidebar-button" text="Notifications" />
+                <Button disable="true" maxWidth="Infinity" styleClass="sidebar-button" text="Privacy" />
+            </VBox>
+        </VBox>
 
-                        <VBox spacing="8">
-                            <Label style="-fx-font-weight: bold;" text="Current Password" />
-                            <PasswordField fx:id="currentPasswordField" />
-                        </VBox>
-
-                        <VBox spacing="8">
-                            <Label style="-fx-font-weight: bold;" text="New Password" />
-                            <PasswordField fx:id="newPasswordField" />
-                        </VBox>
-
-                        <VBox spacing="8">
-                            <Label style="-fx-font-weight: bold;" text="Confirm New Password" />
-                            <PasswordField fx:id="confirmPasswordField" />
-                        </VBox>
-
-                        <Button onAction="#handleChangePassword" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-padding: 10 20;" text="Change Password" />
+        <!-- Content Area -->
+        <StackPane styleClass="content-area" HBox.hgrow="ALWAYS">
+            
+            <!-- Profile View -->
+            <VBox fx:id="profileView" spacing="24">
+                <Label styleClass="header-label" text="Edit Profile" />
+                
+                <HBox alignment="CENTER_LEFT" spacing="24">
+                    <Circle radius="40" fill="#e5e7eb" stroke="#d1d5db" strokeWidth="1" />
+                    <VBox spacing="4">
+                        <Button style="-fx-background-color: white; -fx-border-color: #d1d5db; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 6 12;" text="Change Avatar" />
+                        <Label style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" text="JPG, GIF or PNG. 1MB max." />
                     </VBox>
-                </content>
-            </Tab>
-        </tabs>
-    </TabPane>
-</VBox>
+                </HBox>
+
+                <VBox spacing="6">
+                    <Label styleClass="section-label" text="Avatar URL" />
+                    <TextField fx:id="avatarUrlField" promptText="https://example.com/avatar.png" />
+                </VBox>
+                
+                <VBox spacing="6">
+                    <Label styleClass="section-label" text="Username" />
+                    <TextField fx:id="usernameField" promptText="Enter your username" />
+                </VBox>
+
+                <VBox spacing="6" VBox.vgrow="ALWAYS">
+                    <Label styleClass="section-label" text="Bio" />
+                    <TextArea fx:id="bioArea" prefRowCount="4" promptText="Write a few sentences about yourself." wrapText="true" />
+                    <Label style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" text="Brief description for your profile." />
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                     <Button style="-fx-background-color: transparent; -fx-text-fill: #4b5563; -fx-font-weight: bold;" text="Cancel" />
+                     <Button onAction="#handleProfileSave" styleClass="primary-button" text="Save Changes" />
+                </HBox>
+            </VBox>
+
+            <!-- Security View -->
+            <VBox fx:id="securityView" visible="false" managed="false" spacing="24">
+                <Label styleClass="header-label" text="Security" />
+                
+                <VBox spacing="6">
+                    <Label styleClass="section-label" text="Current Password" />
+                    <PasswordField fx:id="currentPasswordField" />
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label styleClass="section-label" text="New Password" />
+                    <PasswordField fx:id="newPasswordField" />
+                </VBox>
+
+                <VBox spacing="6">
+                    <Label styleClass="section-label" text="Confirm Password" />
+                    <PasswordField fx:id="confirmPasswordField" />
+                </VBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                     <Button style="-fx-background-color: transparent; -fx-text-fill: #4b5563; -fx-font-weight: bold;" text="Cancel" />
+                     <Button onAction="#handleChangePassword" styleClass="danger-button" text="Update Password" />
+                </HBox>
+            </VBox>
+            
+        </StackPane>
+    </HBox>
+</StackPane>
