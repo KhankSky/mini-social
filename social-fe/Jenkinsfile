@@ -12,13 +12,13 @@ pipeline {
         DOCKER_CRED_ID = 'docker-hub-credentials'
         
         // Thông tin Server Deploy
-        APP_SERVER_IP = '192.168.1.202'
-        APP_SERVER_USER = 'khanhsky'
-        DEPLOY_DIR = '~/deploy/social-fe'
+        APP_SERVER_IP = '159.223.76.30'
+        APP_SERVER_USER = 'root'
+        DEPLOY_DIR = '/app/social'
         
         // Biến môi trường cho Frontend (API URL)
-        // Lưu ý: Cần fix cứng hoặc lấy từ Jenkins Credential nếu muốn bảo mật
-        VITE_API_BASE_URL = 'http://192.168.1.202:9090/api'
+        // IP của server mới
+        VITE_API_BASE_URL = 'http://159.223.76.30:8080/api'
     }
     
     stages {
@@ -48,6 +48,23 @@ pipeline {
         stage('Deploy to App Server') {
             steps {
                 echo '=== Deploying to App Server ==='
+                sshagent(['app-server-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} '
+                            cd ${DEPLOY_DIR}
+                            # Pull image mới nhất
+                            docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+                            
+                            # Restart container FE
+                            export DOCKER_HUB_USERNAME=khanksky
+                            docker compose up -d --no-deps social-fe
+                        '
+                    """
+                }
+            }
+        }
+    }
+}
                 sshagent(['app-server-ssh-key']) {
                     sh "ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} 'cd ${DEPLOY_DIR} && ./deploy-fe.sh'"
                 }

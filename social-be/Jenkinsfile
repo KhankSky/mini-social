@@ -12,9 +12,9 @@ pipeline {
         DOCKER_CRED_ID = 'docker-hub-credentials' // ID bạn đặt trong Jenkins
         
         // Thông tin Server Deploy
-        APP_SERVER_IP = '192.168.1.202'
-        APP_SERVER_USER = 'khanhsky'
-        DEPLOY_DIR = '~/deploy/social' // Thư mục chứa file deploy.sh trên server
+        APP_SERVER_IP = '159.223.76.30'
+        APP_SERVER_USER = 'root'
+        DEPLOY_DIR = '/app/social' // Thư mục chứa file deploy.sh trên server
     }
     
     stages {
@@ -48,6 +48,33 @@ pipeline {
                 echo '=== Deploying to App Server ==='
                 // Sử dụng SSH Agent để kết nối
                 sshagent(['app-server-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} '
+                            mkdir -p ${DEPLOY_DIR}
+                            cd ${DEPLOY_DIR}
+                            # Pull image mới nhất
+                            docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+                            
+                            # Chạy lại container (nếu dùng docker-compose thì gọi lệnh up -d)
+                            # Ở đây giả sử bạn đã copy file docker-compose.prod.yml lên server rồi
+                            # Nếu chưa thì cần scp file lên trước
+                        '
+                        # Copy file docker-compose.prod.yml lên server
+                        scp -o StrictHostKeyChecking=no social-be/docker-compose.prod.yml ${APP_SERVER_USER}@${APP_SERVER_IP}:${DEPLOY_DIR}/docker-compose.yml
+                        
+                        # Chạy docker-compose up
+                        ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} '
+                            cd ${DEPLOY_DIR}
+                            export DOCKER_HUB_USERNAME=khanksky
+                            docker compose down
+                            docker compose up -d
+                        '
+                    """
+                }
+            }
+        }
+    }
+}
                     // SSH vào server và chạy script deploy có sẵn
                     sh "ssh -o StrictHostKeyChecking=no ${APP_SERVER_USER}@${APP_SERVER_IP} 'cd ${DEPLOY_DIR} && ./deploy.sh'"
                 }
