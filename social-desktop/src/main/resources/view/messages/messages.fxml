@@ -87,6 +87,9 @@
                 <Button fx:id="attachButton" onAction="#handleAttachFile" styleClass="ghost-button">
                     <graphic><FontIcon iconLiteral="fas-image" iconSize="20" iconColor="#6366f1"/></graphic>
                 </Button>
+                <Button fx:id="recordButton" onAction="#handleVoiceRecord" styleClass="ghost-button">
+                    <graphic><FontIcon iconLiteral="fas-microphone" iconSize="20" iconColor="#6366f1"/></graphic>
+                </Button>
                 <TextArea fx:id="messageInput" promptText="Type a message..." HBox.hgrow="ALWAYS" prefRowCount="1" wrapText="true"
                           style="-fx-background-color: #f3f4f6; -fx-background-radius: 20; -fx-padding: 8 16;"/>
                 <Button fx:id="sendButton" onAction="#handleSendMessage" styleClass="primary-button" text="Send"/>

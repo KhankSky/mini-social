@@ -38,7 +38,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button">
+        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleNotifications">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-bell" iconSize="16" iconColor="#1f2937"/>
@@ -54,7 +54,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button">
+        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleSearch">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#1f2937"/>
@@ -62,11 +62,19 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button">
+        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleSettings">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="#1f2937"/>
                     <Label text="Settings" styleClass="nav-label"/>
+                </HBox>
+            </graphic>
+        </Button>
+        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleLogout">
+            <graphic>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" iconColor="#ef4444"/>
+                    <Label text="Logout" styleClass="nav-label"/>
                 </HBox>
             </graphic>
         </Button>

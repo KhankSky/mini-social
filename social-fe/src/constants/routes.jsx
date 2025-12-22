@@ -7,6 +7,9 @@ import AdminLayout from "../layouts/AdminLayout.jsx";
 import Users from "../pages/admin/Users.jsx";
 import ProtectedRoute from "../components/ProtectedRoute.jsx";
 import Messages from "../pages/Messages.jsx";
+import Messages from "../pages/Messages.jsx";
+import CallWindowPage from "../pages/CallWindowPage.jsx";
+import SettingsPage from "../pages/SettingsPage.jsx";
 
 export const routes = [
   {
@@ -29,6 +32,10 @@ export const routes = [
         path: "friends",
         element: <Friends />,
       },
+      {
+        path: "settings",
+        element: <SettingsPage />,
+      },
     ],
   },
   {
@@ -38,6 +45,10 @@ export const routes = [
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/call-window",
+    element: <CallWindowPage />,
   },
   {
     path: "/admin",

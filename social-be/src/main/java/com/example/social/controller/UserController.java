@@ -29,12 +29,14 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<ResCreateUserDTO> createUser(@Valid @RequestBody ReqCreateUserDTO reqUser) throws ResourceAlreadyExistsException {
+    public ResponseEntity<ResCreateUserDTO> createUser(@Valid @RequestBody ReqCreateUserDTO reqUser)
+            throws ResourceAlreadyExistsException {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(reqUser));
     }
 
     @PutMapping("/users")
-    public ResponseEntity<ResUpdateUserDTO> updateUser(@Valid @RequestBody ReqUpdateUserDTO reqUser) throws ResourceNotFoundException {
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@Valid @RequestBody ReqUpdateUserDTO reqUser)
+            throws ResourceNotFoundException {
         return ResponseEntity.ok(this.userService.updateUser(reqUser));
     }
 
@@ -51,6 +53,16 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) throws ResourceNotFoundException {
         this.userService.deleteUserById(id);
+        return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/users/password")
+    public ResponseEntity<Void> changePassword(
+            @Valid @RequestBody com.example.social.dto.request.user.ReqChangePasswordDTO req)
+            throws ResourceNotFoundException {
+        String email = com.example.social.security.SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new ResourceNotFoundException("User not authenticated"));
+        this.userService.changePassword(email, req);
         return ResponseEntity.ok(null);
     }
 }

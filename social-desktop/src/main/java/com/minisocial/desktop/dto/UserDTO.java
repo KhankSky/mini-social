@@ -10,6 +10,7 @@ public class UserDTO {
     private String bio;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String relationStatus;
 
     public UserDTO() {
     }
@@ -68,5 +69,13 @@ public class UserDTO {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getRelationStatus() {
+        return relationStatus;
+    }
+
+    public void setRelationStatus(String relationStatus) {
+        this.relationStatus = relationStatus;
     }
 }

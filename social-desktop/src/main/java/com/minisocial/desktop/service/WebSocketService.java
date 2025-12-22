@@ -19,15 +19,22 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class WebSocketService {
     private StompSession session;
     private final String url = AppConfig.SERVER_BASE_URL + "/ws";
     private Consumer<MessageDTO> onMessageReceived;
+    private Consumer<Map<String, Object>> onCallReceived;
+    private Consumer<Object> onNotificationReceived; // Using Object or a proper DTO
 
-    public void connect(Consumer<MessageDTO> onMessageReceived) {
+    public void connect(Consumer<MessageDTO> onMessageReceived,
+            Consumer<Map<String, Object>> onCallReceived,
+            Consumer<Object> onNotificationReceived) {
         this.onMessageReceived = onMessageReceived;
+        this.onCallReceived = onCallReceived;
+        this.onNotificationReceived = onNotificationReceived;
 
         // Use SockJS for better compatibility
         List<Transport> transports = new ArrayList<>();
@@ -54,6 +61,8 @@ public class WebSocketService {
                 System.out.println("WebSocket Connected! Session ID: " + session.getSessionId());
                 WebSocketService.this.session = session;
                 subscribeToMessages();
+                subscribeToCalls();
+                subscribeToNotifications();
             }
 
             @Override
@@ -90,6 +99,56 @@ public class WebSocketService {
                     System.out.println("Received message via WebSocket: " + message.getContent());
                     if (onMessageReceived != null) {
                         Platform.runLater(() -> onMessageReceived.accept(message));
+                    }
+                }
+            }
+        });
+    }
+
+    private void subscribeToCalls() {
+        if (session == null || !session.isConnected())
+            return;
+
+        System.out.println("Subscribing to /user/queue/call");
+        session.subscribe("/user/queue/call", new StompSessionHandlerAdapter() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                return Map.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                if (payload instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> callData = (Map<String, Object>) payload;
+                    System.out.println("Received call signal via WebSocket: " + callData.get("type"));
+                    if (onCallReceived != null) {
+                        Platform.runLater(() -> onCallReceived.accept(callData));
+                    }
+                }
+            }
+        });
+    }
+
+    private void subscribeToNotifications() {
+        if (session == null || !session.isConnected())
+            return;
+
+        System.out.println("Subscribing to /user/queue/notifications");
+        session.subscribe("/user/queue/notifications", new StompSessionHandlerAdapter() {
+            @Override
+            public Type getPayloadType(StompHeaders headers) {
+                // We can use Map or a DTO. Let's use Map for simplicity or duplicate DTO.
+                // Since DTO is in backend, we should create one in desktop or use Map.
+                return Map.class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders headers, Object payload) {
+                if (payload instanceof Map) {
+                    System.out.println("Received notification via WebSocket");
+                    if (onNotificationReceived != null) {
+                        Platform.runLater(() -> onNotificationReceived.accept(payload));
                     }
                 }
             }

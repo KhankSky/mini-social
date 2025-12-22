@@ -21,9 +21,15 @@ import javafx.scene.text.TextFlow;
 
 import com.minisocial.desktop.dto.FriendDTO;
 import com.minisocial.desktop.service.FriendService;
+import com.minisocial.desktop.view.call.CallWindow;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import javax.sound.sampled.*;
+import java.io.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 public class MessagesController {
     private final UserSession session;
@@ -54,6 +60,13 @@ public class MessagesController {
     private FlowPane filePreviewArea;
     @FXML
     private TextField searchField;
+    @FXML
+    private Button recordButton;
+
+    private boolean isRecording = false;
+    private TargetDataLine targetDataLine;
+    private File audioFile;
+    private MediaPlayer mediaPlayer;
 
     private ConversationDTO activeConversation;
     private final java.util.List<java.io.File> selectedFiles = new java.util.ArrayList<>();
@@ -78,7 +91,38 @@ public class MessagesController {
     }
 
     private void connectWebSocket() {
-        webSocketService.connect(this::handleNewMessage);
+        webSocketService.connect(this::handleNewMessage, this::handleCallReceived, notification -> {
+        });
+    }
+
+    private void handleCallReceived(Map<String, Object> callData) {
+        String type = (String) callData.get("type");
+        String from = (String) callData.get("from");
+
+        if ("CALL_OFFER".equals(type)) {
+            Platform.runLater(() -> {
+                boolean isVideo = (boolean) callData.get("isVideo");
+                String sdp = (String) callData.get("sdp");
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Incoming Call");
+                alert.setHeaderText((isVideo ? "Video" : "Voice") + " call from " + from);
+                alert.setContentText("Do you want to accept?");
+
+                ButtonType acceptType = new ButtonType("Accept", ButtonBar.ButtonData.OK_DONE);
+                ButtonType rejectType = new ButtonType("Reject", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(acceptType, rejectType);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == acceptType) {
+                    new CallWindow(from, isVideo, "answer", sdp).show();
+                } else {
+                    // Send reject signal
+                    // We need a way to send signaling back. For now, let's keep it simple.
+                    // WebRTCService in JS will handle it if the window is open.
+                }
+            });
+        }
     }
 
     private void handleNewMessage(MessageDTO newMessage) {
@@ -253,12 +297,16 @@ public class MessagesController {
 
     @FXML
     private void handleVoiceCall() {
-        showAlert("Voice Call", "Voice calling is currently only available on the Web version.");
+        if (activeConversation == null)
+            return;
+        new CallWindow(activeConversation.getUsername(), false, "offer", null).show();
     }
 
     @FXML
     private void handleVideoCall() {
-        showAlert("Video Call", "Video calling is currently only available on the Web version.");
+        if (activeConversation == null)
+            return;
+        new CallWindow(activeConversation.getUsername(), true, "offer", null).show();
     }
 
     private HBox createConversationItem(ConversationDTO conv) {
@@ -355,10 +403,27 @@ public class MessagesController {
         // Attachments
         if (msg.getAttachments() != null && !msg.getAttachments().isEmpty()) {
             for (String url : msg.getAttachments()) {
-                javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(url);
-                imageView.setFitWidth(200);
-                imageView.setPreserveRatio(true);
-                bubble.getChildren().add(imageView);
+                String fullUrl = com.minisocial.desktop.config.AppConfig.getFullImageUrl(url);
+                if (url.endsWith(".wav") || url.endsWith(".mp3") || url.endsWith(".webm")) {
+                    Button playBtn = new Button("▶ Play Voice Message");
+                    playBtn.setOnAction(e -> {
+                        if (mediaPlayer != null)
+                            mediaPlayer.stop();
+                        try {
+                            Media media = new Media(fullUrl);
+                            mediaPlayer = new MediaPlayer(media);
+                            mediaPlayer.play();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                    bubble.getChildren().add(playBtn);
+                } else {
+                    javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(fullUrl);
+                    imageView.setFitWidth(200);
+                    imageView.setPreserveRatio(true);
+                    bubble.getChildren().add(imageView);
+                }
             }
         }
 
@@ -412,6 +477,95 @@ public class MessagesController {
             chip.getChildren().addAll(name, close);
             filePreviewArea.getChildren().add(chip);
         }
+    }
+
+    @FXML
+    private void handleVoiceRecord() {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    }
+
+    private void startRecording() {
+        try {
+            AudioFormat format = new AudioFormat(16000, 16, 1, true, true);
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+
+            if (!AudioSystem.isLineSupported(info)) {
+                showAlert("Error", "Microphone not supported");
+                return;
+            }
+
+            targetDataLine = (TargetDataLine) AudioSystem.getLine(info);
+            targetDataLine.open(format);
+            targetDataLine.start();
+
+            audioFile = File.createTempFile("voice_", ".wav");
+
+            Thread recordingThread = new Thread(() -> {
+                try (AudioInputStream ais = new AudioInputStream(targetDataLine)) {
+                    AudioSystem.write(ais, AudioFileFormat.Type.WAVE, audioFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            recordingThread.start();
+
+            isRecording = true;
+            Platform.runLater(() -> {
+                recordButton.setStyle("-fx-background-color: #fee2e2;"); // Red tint
+                ((org.kordamp.ikonli.javafx.FontIcon) recordButton.getGraphic()).setIconColor(Color.RED);
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to start recording: " + e.getMessage());
+        }
+    }
+
+    private void stopRecording() {
+        if (targetDataLine != null) {
+            targetDataLine.stop();
+            targetDataLine.close();
+            isRecording = false;
+
+            Platform.runLater(() -> {
+                recordButton.setStyle("");
+                ((org.kordamp.ikonli.javafx.FontIcon) recordButton.getGraphic()).setIconColor(Color.web("#6366f1"));
+
+                // Confirm send
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Voice Message");
+                alert.setHeaderText("Recording finished");
+                alert.setContentText("Send this voice message?");
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    sendVoiceMessage();
+                } else {
+                    audioFile.delete();
+                }
+            });
+        }
+    }
+
+    private void sendVoiceMessage() {
+        new Thread(() -> {
+            try {
+                List<File> files = new java.util.ArrayList<>();
+                files.add(audioFile);
+                messageService.sendMessageWithFiles(activeConversation.getUserId(), "", files);
+
+                Platform.runLater(() -> {
+                    loadMessages(activeConversation.getUserId());
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> showAlert("Error", "Failed to send voice: " + e.getMessage()));
+            }
+        }).start();
     }
 
     @FXML

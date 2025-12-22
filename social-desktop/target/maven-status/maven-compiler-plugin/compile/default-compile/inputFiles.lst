@@ -12,6 +12,9 @@ C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\d
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\dto\CommentDTO.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\view\messages\MessagesController.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\service\UserService.java
+C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\view\search\SearchController.java
+C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\view\settings\SettingsController.java
+C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\view\call\CallWindow.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\view\friends\FriendsController.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\view\layout\main\MainLayoutController.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\service\MessageService.java
@@ -26,6 +29,7 @@ C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\d
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\SocialDesktopApp.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\utils\MultipartBodyPublisher.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\dto\PostDTO.java
+C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\view\notifications\NotificationsController.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\UserSession.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\dto\FriendDTO.java
 C:\Users\lamma\mini-social\social-desktop\src\main\java\com\minisocial\desktop\service\AuthService.java

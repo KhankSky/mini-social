@@ -187,8 +187,30 @@ public class FriendsController {
         HBox card = createBaseCard(user.getUsername(), user.getEmail());
 
         Button addBtn = new Button("Add Friend");
+
+        String status = user.getRelationStatus();
+        boolean disabled = false;
+
+        if ("PENDING_SENT".equals(status)) {
+            addBtn.setText("Sent");
+            disabled = true;
+        } else if ("FRIEND".equals(status)) {
+            addBtn.setText("Friend");
+            disabled = true;
+        } else if ("SELF".equals(status)) {
+            addBtn.setText("You");
+            disabled = true;
+        } else if ("PENDING_RECEIVED".equals(status)) {
+            addBtn.setText("Confirm");
+        }
+
+        addBtn.setDisable(disabled);
         addBtn.setStyle(
-                "-fx-background-color: #e0e7ff; -fx-text-fill: #6366f1; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 8; -fx-cursor: hand;");
+                "-fx-background-color: " + (disabled ? "#f3f4f6" : "#e0e7ff") + "; " +
+                        "-fx-text-fill: " + (disabled ? "#9ca3af" : "#6366f1") + "; " +
+                        "-fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 8; -fx-cursor: "
+                        + (disabled ? "default" : "hand") + ";");
+
         addBtn.setOnAction(e -> handleAddFriend(user));
 
         card.getChildren().add(addBtn);

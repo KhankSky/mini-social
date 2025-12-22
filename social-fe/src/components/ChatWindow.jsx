@@ -1,10 +1,16 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { FiPhone, FiVideo, FiMoreVertical, FiSmile, FiPaperclip, FiSend, FiImage, FiX } from "react-icons/fi";
+import { FiPhone, FiVideo, FiMoreVertical, FiSmile, FiPaperclip, FiSend, FiImage, FiX, FiMic, FiStopCircle } from "react-icons/fi";
 import MessageItem from "./MessageItem";
 
 const ChatWindow = ({ activeConversation, messages, onSendMessage, currentUser, onVoiceCall, onVideoCall, onEditMessage }) => {
     const [inputValue, setInputValue] = useState("");
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isRecording, setIsRecording] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
+    const timerRef = useRef(null);
+
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
 
@@ -31,6 +37,58 @@ const ChatWindow = ({ activeConversation, messages, onSendMessage, currentUser, 
         onSendMessage(inputValue, selectedFiles);
         setInputValue("");
         setSelectedFiles([]);
+    };
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = recorder;
+            audioChunksRef.current = [];
+
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            recorder.onstop = () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                const audioFile = new File([audioBlob], "voice_message.webm", { type: 'audio/webm' });
+                onSendMessage("", [audioFile]);
+
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            recorder.start();
+            setIsRecording(true);
+            setRecordingTime(0);
+
+            timerRef.current = setInterval(() => {
+                setRecordingTime(prev => prev + 1);
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
+            alert("Could not access microphone.");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+        }
+    };
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
     if (!activeConversation) {
@@ -165,16 +223,36 @@ const ChatWindow = ({ activeConversation, messages, onSendMessage, currentUser, 
                         >
                             <FiImage size={20} />
                         </button>
-                        <button
-                            onClick={handleSend}
-                            disabled={!inputValue.trim() && selectedFiles.length === 0}
-                            className={`ml-1 w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-md ${inputValue.trim() || selectedFiles.length > 0
-                                ? 'bg-gradient-to-tr from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105'
-                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                }`}
-                        >
-                            <FiSend size={18} className={(inputValue.trim() || selectedFiles.length > 0) ? "ml-0.5" : ""} />
-                        </button>
+
+                        {isRecording ? (
+                            <button
+                                onClick={stopRecording}
+                                className="ml-1 flex items-center gap-2 px-3 py-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors animate-pulse"
+                            >
+                                <FiStopCircle size={20} />
+                                <span className="text-sm font-medium">{formatTime(recordingTime)}</span>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={startRecording}
+                                className={`p-2 rounded-full hover:bg-gray-200 transition-colors ${inputValue.trim() || selectedFiles.length > 0 ? 'text-gray-400' : 'text-blue-600 bg-blue-50'}`}
+                            >
+                                <FiMic size={20} />
+                            </button>
+                        )}
+
+                        {!isRecording && (
+                            <button
+                                onClick={handleSend}
+                                disabled={!inputValue.trim() && selectedFiles.length === 0}
+                                className={`ml-1 w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-md ${inputValue.trim() || selectedFiles.length > 0
+                                    ? 'bg-gradient-to-tr from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105'
+                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                    }`}
+                            >
+                                <FiSend size={18} className={(inputValue.trim() || selectedFiles.length > 0) ? "ml-0.5" : ""} />
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

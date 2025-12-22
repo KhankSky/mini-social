@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import dayjs from "dayjs";
 import { FiCheck, FiMoreVertical, FiEdit2, FiX, FiCheck as FiCheckIcon } from "react-icons/fi";
+import { API_ORIGIN } from "../config/HttpClient";
 
 const MessageItem = ({ message, isOwn, userAvatar, myAvatar, onEditMessage }) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -64,14 +65,25 @@ const MessageItem = ({ message, isOwn, userAvatar, myAvatar, onEditMessage }) =>
                                 {/* Attachments */}
                                 {message.attachments && message.attachments.length > 0 && (
                                     <div className="mt-3 flex flex-col gap-2">
-                                        {message.attachments.map((url, index) => (
-                                            <img
-                                                key={index}
-                                                src={`http://localhost:9090${url}`}
-                                                alt="attachment"
-                                                className="max-w-full rounded-lg border border-white/20"
-                                            />
-                                        ))}
+                                        {message.attachments.map((url, index) => {
+                                            const isAudio = url.endsWith('.webm') || url.endsWith('.wav') || url.endsWith('.mp3');
+                                            if (isAudio) {
+                                                return (
+                                                    <audio key={index} controls className="max-w-[250px] mt-1">
+                                                        <source src={`${API_ORIGIN}${url}`} />
+                                                        Your browser does not support the audio element.
+                                                    </audio>
+                                                );
+                                            }
+                                            return (
+                                                <img
+                                                    key={index}
+                                                    src={`${API_ORIGIN}${url}`}
+                                                    alt="attachment"
+                                                    className="max-w-full rounded-lg border border-white/20"
+                                                />
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </>

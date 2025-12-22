@@ -43,4 +43,24 @@ public class LeftSidebarController {
     private void handleFriends() {
         mainController.showFriends();
     }
+
+    @FXML
+    private void handleNotifications() {
+        mainController.showNotifications();
+    }
+
+    @FXML
+    private void handleLogout() {
+        mainController.logout();
+    }
+
+    @FXML
+    private void handleSearch() {
+        mainController.showSearch();
+    }
+
+    @FXML
+    private void handleSettings() {
+        mainController.showSettings();
+    }
 }

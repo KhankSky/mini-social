@@ -15,6 +15,7 @@ public class ResGetUserDTO {
     private String username;
     private String avatarUrl;
     private String bio;
+    private String relationStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

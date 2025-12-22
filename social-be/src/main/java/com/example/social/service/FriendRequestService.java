@@ -31,13 +31,16 @@ public class FriendRequestService {
     private final FriendRequestRepository friendRequestRepository;
     private final FriendsRepository friendsRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public FriendRequestService(FriendRequestRepository friendRequestRepository,
-                                FriendsRepository friendsRepository,
-                                UserRepository userRepository) {
+            FriendsRepository friendsRepository,
+            UserRepository userRepository,
+            NotificationService notificationService) {
         this.friendRequestRepository = friendRequestRepository;
         this.friendsRepository = friendsRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     private User getCurrentUser() {
@@ -46,16 +49,17 @@ public class FriendRequestService {
     }
 
     @Transactional
-    public ResGetFriendRequestDTO sendFriendRequest(ReqSendFriendRequestDTO request) 
+    public ResGetFriendRequestDTO sendFriendRequest(ReqSendFriendRequestDTO request)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        
+
         User sender = getCurrentUser();
         if (sender == null) {
             throw new ResourceNotFoundException("Current user not found");
         }
 
         User receiver = userRepository.findById(request.getReceiverId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id = " + request.getReceiverId()));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("User not found with id = " + request.getReceiverId()));
 
         // Check if trying to send request to self
         if (sender.getId().equals(receiver.getId())) {
@@ -86,13 +90,21 @@ public class FriendRequestService {
         FriendRequest saved = friendRequestRepository.save(friendRequest);
         log.info("Friend request sent from user {} to user {}", sender.getId(), receiver.getId());
 
+        // Notify receiver
+        notificationService.createNotification(
+                receiver,
+                sender,
+                "FRIEND_REQUEST",
+                sender.getUsername() + " sent you a friend request",
+                String.valueOf(saved.getId()));
+
         return toFriendRequestDTO(saved);
     }
 
     @Transactional
-    public ResGetFriendRequestDTO acceptFriendRequest(Long requestId) 
+    public ResGetFriendRequestDTO acceptFriendRequest(Long requestId)
             throws ResourceNotFoundException {
-        
+
         User currentUser = getCurrentUser();
         FriendRequest request = friendRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Friend request not found with id = " + requestId));
@@ -124,16 +136,24 @@ public class FriendRequestService {
         friendsRepository.save(friendship1);
         friendsRepository.save(friendship2);
 
-        log.info("Friend request {} accepted. Users {} and {} are now friends", 
+        log.info("Friend request {} accepted. Users {} and {} are now friends",
                 requestId, request.getSender().getId(), request.getReceiver().getId());
+
+        // Notify sender
+        notificationService.createNotification(
+                request.getSender(),
+                currentUser,
+                "FRIEND_ACCEPT",
+                currentUser.getUsername() + " accepted your friend request",
+                String.valueOf(currentUser.getId()));
 
         return toFriendRequestDTO(request);
     }
 
     @Transactional
-    public ResGetFriendRequestDTO rejectFriendRequest(Long requestId) 
+    public ResGetFriendRequestDTO rejectFriendRequest(Long requestId)
             throws ResourceNotFoundException {
-        
+
         User currentUser = getCurrentUser();
         FriendRequest request = friendRequestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Friend request not found with id = " + requestId));
@@ -181,11 +201,11 @@ public class FriendRequestService {
 
         List<ResGetFriendDTO> friends = new ArrayList<>();
         Set<Long> addedFriendIds = new HashSet<>();
-        
+
         for (Friends friendship : friendships) {
             // Get the other user in the friendship
-            User friend = friendship.getUser().getId().equals(currentUser.getId()) 
-                    ? friendship.getFriend() 
+            User friend = friendship.getUser().getId().equals(currentUser.getId())
+                    ? friendship.getFriend()
                     : friendship.getUser();
 
             // Skip if we've already added this friend (deduplication)
@@ -225,7 +245,8 @@ public class FriendRequestService {
             throw new ResourceNotFoundException("You are not friends with this user");
         }
 
-        // Find and delete all friendship records between the two users (both directions)
+        // Find and delete all friendship records between the two users (both
+        // directions)
         List<Friends> friendships = friendsRepository.findFriendshipBetweenUsers(currentUser, friendUser);
         if (!friendships.isEmpty()) {
             friendsRepository.deleteAll(friendships);

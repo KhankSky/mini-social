@@ -65,6 +65,26 @@ public class MainLayoutController {
                 param -> new com.minisocial.desktop.view.friends.FriendsController(navigator, session, this));
     }
 
+    public void showNotifications() {
+        loadView("/view/notifications/notifications.fxml",
+                param -> new com.minisocial.desktop.view.notifications.NotificationsController());
+    }
+
+    public void logout() {
+        session.clear();
+        navigator.showLogin();
+    }
+
+    public void showSearch() {
+        loadView("/view/search/search.fxml",
+                param -> new com.minisocial.desktop.view.search.SearchController());
+    }
+
+    public void showSettings() {
+        loadView("/view/settings/settings.fxml",
+                param -> new com.minisocial.desktop.view.settings.SettingsController());
+    }
+
     private void loadView(String fxmlPath, javafx.util.Callback<Class<?>, Object> controllerFactory) {
         try {
             URL url = MainLayoutController.class.getResource(fxmlPath);

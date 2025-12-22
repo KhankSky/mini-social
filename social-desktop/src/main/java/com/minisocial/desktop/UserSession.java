@@ -28,4 +28,10 @@ public class UserSession {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+
+    public void clear() {
+        this.userId = null;
+        this.username = null;
+        this.fullName = null;
+    }
 }

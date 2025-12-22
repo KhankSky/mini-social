@@ -10,7 +10,6 @@ import com.example.social.repository.CommentRepository;
 import com.example.social.repository.PostRepository;
 import com.example.social.repository.UserRepository;
 import com.example.social.security.SecurityUtils;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,16 +22,16 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationService notificationService;
 
     public CommentService(CommentRepository commentRepository,
-                          PostRepository postRepository,
-                          UserRepository userRepository,
-                          SimpMessagingTemplate messagingTemplate) {
+            PostRepository postRepository,
+            UserRepository userRepository,
+            NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.messagingTemplate = messagingTemplate;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -89,7 +88,8 @@ public class CommentService {
 
     private ResCommentDTO mapToDTOWithChildren(Comment comment) {
         ResCommentDTO dto = mapToDTO(comment);
-        List<ResCommentDTO> children = commentRepository.findByParentCommentIdOrderByCreatedAtAsc(comment.getId()).stream()
+        List<ResCommentDTO> children = commentRepository.findByParentCommentIdOrderByCreatedAtAsc(comment.getId())
+                .stream()
                 .map(this::mapToDTOWithChildren)
                 .collect(Collectors.toList());
         dto.setReplies(children);
@@ -112,27 +112,11 @@ public class CommentService {
             return;
         }
 
-        NotificationPayload payload = new NotificationPayload(
+        notificationService.createNotification(
+                postOwner,
+                commenter,
                 "COMMENT",
-                post.getId(),
-                comment.getId(),
-                commenter.getUsername(),
-                comment.getContent()
-        );
-        messagingTemplate.convertAndSendToUser(
-                postOwner.getEmail(),
-                "/queue/notifications",
-                payload
-        );
-    }
-
-    public record NotificationPayload(
-            String type,
-            Long postId,
-            Long commentId,
-            String fromUser,
-            String commentContent
-    ) {
+                commenter.getUsername() + " commented on your post",
+                String.valueOf(post.getId()));
     }
 }
-
