@@ -1,4 +1,4 @@
-import { httpClient } from "../config/HttpClient";
+import httpClient from "../config/HttpClient";
 
 export const getMyNotifications = async () => {
     const response = await httpClient.get('/notifications');
