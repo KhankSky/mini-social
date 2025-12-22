@@ -24,7 +24,7 @@ services:
     container_name: social-be
     restart: always
     ports:
-      - "8080:8080"
+      - "8080:9090"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/social_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
