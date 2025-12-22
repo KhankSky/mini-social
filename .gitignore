@@ -1,26 +1,12 @@
-# IDE
-.idea/
-*.iml
-.vscode/
-.project
-.classpath
-.settings/
-.nb-gradle/
-
-# Build
 **/target/
-**/bin/
-**/build/
-.gradle/
-
-# Logs
+**/*.class
+**/.idea/
+**/*.iml
 **/logs/
-*.log
-
-# Temp
-tmp/
-.temp/
-
-# Desktop specific
-social-desktop/hs_err_pid*
-social-desktop/replay_pid*
+**/.settings/
+**/.classpath
+**/.project
+social-desktop/src/main/resources/view/search/
+social-desktop/src/main/resources/view/settings/
+social-desktop/src/main/java/com/minisocial/desktop/view/search/
+social-desktop/src/main/java/com/minisocial/desktop/view/settings/
