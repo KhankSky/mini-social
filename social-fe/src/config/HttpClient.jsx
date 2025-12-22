@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export const API_BASE_URL = "http://localhost:9090/api";
+// Sử dụng biến môi trường VITE_API_BASE_URL, nếu không có thì dùng localhost
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api";
 export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, "");
 
 const httpClient = axios.create({
