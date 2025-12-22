@@ -1,5 +1,9 @@
 pipeline {
     agent any
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Nhánh code cần build (ví dụ: main, develop)')
+    }
     
     environment {
         // Thông tin Image
