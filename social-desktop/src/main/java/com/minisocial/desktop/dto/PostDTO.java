@@ -1,8 +1,10 @@
 package com.minisocial.desktop.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDTO {
 
     private Long id;
@@ -137,7 +139,16 @@ public class PostDTO {
         this.updatedAt = updatedAt;
     }
 
+    public Boolean getIsLikedByCurrentUser() {
+        return isLikedByCurrentUser;
+    }
+
+    public void setIsLikedByCurrentUser(Boolean isLikedByCurrentUser) {
+        this.isLikedByCurrentUser = isLikedByCurrentUser;
+    }
+
     // Nested AttachmentDTO class
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AttachmentDTO {
         private Long id;
         private String fileName;

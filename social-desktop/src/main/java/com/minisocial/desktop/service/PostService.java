@@ -29,6 +29,7 @@ public class PostService {
                 .build();
         
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.objectMapper.registerModule(new JavaTimeModule());
     }
     
