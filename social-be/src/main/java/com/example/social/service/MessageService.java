@@ -28,6 +28,8 @@ public class MessageService {
     private final FileStorageService fileStorageService;
     private final SimpMessagingTemplate messagingTemplate;
 
+    private final NotificationService notificationService;
+
     @Transactional
     public ResMessageDTO sendMessage(ReqSendMessageDTO req, List<MultipartFile> files, String senderEmail) {
         User sender = userRepository.findByEmail(senderEmail);
@@ -73,6 +75,14 @@ public class MessageService {
 
         // Also notify sender to sync their other clients (e.g. desktop vs web)
         messagingTemplate.convertAndSendToUser(sender.getEmail(), "/queue/messages", resDto);
+
+        // Send Notification to receiver so it appears in their Notification Center
+        notificationService.createNotification(
+                receiver,
+                sender,
+                "MESSAGE",
+                "sent you a message",
+                savedMessage.getId().toString());
 
         return resDto;
     }

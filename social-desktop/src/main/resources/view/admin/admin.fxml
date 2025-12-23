@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.minisocial.desktop.view.admin.AdminController"
+      spacing="0" styleClass="admin-container"
+      stylesheets="@../../css/admin.css">
+
+    <!-- Header -->
+    <HBox styleClass="admin-header" alignment="CENTER_LEFT" spacing="10">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <Label text="Admin Panel" styleClass="admin-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="userRoleLabel" styleClass="role-badge"/>
+    </HBox>
+
+    <!-- Tab Navigation -->
+    <HBox styleClass="tab-nav" spacing="0">
+        <Button fx:id="dashboardTab" text="📊 Dashboard" onAction="#showDashboard" styleClass="tab-button,selected"/>
+        <Button fx:id="usersTab" text="👥 Users" onAction="#showUsers" styleClass="tab-button"/>
+        <Button fx:id="postsTab" text="📝 Posts" onAction="#showPosts" styleClass="tab-button"/>
+    </HBox>
+
+    <!-- Content Area -->
+    <StackPane VBox.vgrow="ALWAYS" styleClass="content-area">
+        <!-- Dashboard View -->
+        <VBox fx:id="dashboardView" spacing="20" visible="true" managed="true">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Statistics" styleClass="section-title"/>
+            
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+                
+                <VBox styleClass="stat-card" GridPane.columnIndex="0">
+                    <Label text="Total Users" styleClass="stat-label"/>
+                    <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+                
+                <VBox styleClass="stat-card" GridPane.columnIndex="1">
+                    <Label text="Total Posts" styleClass="stat-label"/>
+                    <Label fx:id="totalPostsLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+                
+                <VBox styleClass="stat-card" GridPane.columnIndex="2">
+                    <Label text="Total Comments" styleClass="stat-label"/>
+                    <Label fx:id="totalCommentsLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+                
+                <VBox styleClass="stat-card" GridPane.columnIndex="3">
+                    <Label text="Active Today" styleClass="stat-label"/>
+                    <Label fx:id="activeTodayLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+
+        <!-- Users View -->
+        <VBox fx:id="usersView" spacing="15" visible="false" managed="false">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="User Management" styleClass="section-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="userSearchField" promptText="Search users..." prefWidth="250"/>
+                <Button text="🔍 Search" onAction="#handleUserSearch"/>
+            </HBox>
+
+            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="ID" prefWidth="60"/>
+                    <TableColumn text="Username" prefWidth="150"/>
+                    <TableColumn text="Email" prefWidth="200"/>
+                    <TableColumn text="Role" prefWidth="120"/>
+                    <TableColumn text="Created At" prefWidth="150"/>
+                    <TableColumn text="Actions" prefWidth="120"/>
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- Posts View -->
+        <VBox fx:id="postsView" spacing="15" visible="false" managed="false">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Content Management" styleClass="section-title"/>
+
+            <TableView fx:id="postsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="ID" prefWidth="60"/>
+                    <TableColumn text="Author" prefWidth="150"/>
+                    <TableColumn text="Content" prefWidth="400"/>
+                    <TableColumn text="Created At" prefWidth="150"/>
+                    <TableColumn text="Actions" prefWidth="100"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </StackPane>
+</VBox>

@@ -6,6 +6,7 @@ import { getMyNotifications, markAsRead, markAllAsRead } from '../../services/no
 import notificationWebSocket from '../../services/notificationWebSocket';
 import AuthService from '../../services/auth';
 import SearchModal from '../common/SearchModal';
+import { useToast } from '../../context/ToastContext';
 
 const resolveImageUrl = (url) => {
   if (!url) return 'https://api.dicebear.com/7.x/avataaars/svg?seed=User';
@@ -23,18 +24,69 @@ const Sidebar = ({ user }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { showToast } = useToast();
+  const audioRef = useRef(null);
 
   useEffect(() => {
+    // Request browser notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
     loadNotifications();
     notificationWebSocket.connect((newNotification) => {
       setNotifications(prev => [newNotification, ...prev]);
       setUnreadCount(prev => prev + 1);
+
+      // Show toast notification
+      showToast(newNotification);
+
+      // Play notification sound
+      playNotificationSound();
+
+      // Show browser notification if tab is not active
+      if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+        const notifText = getNotificationText(newNotification);
+        new Notification(newNotification.actorName, {
+          body: notifText,
+          icon: newNotification.actorAvatar || `https://ui-avatars.com/api/?name=${newNotification.actorName}`,
+          tag: `notification-${newNotification.id}`,
+        });
+      }
     });
 
     return () => {
       notificationWebSocket.disconnect();
     };
-  }, []);
+  }, [showToast]);
+
+  const playNotificationSound = () => {
+    try {
+      // Create audio element if it doesn't exist
+      if (!audioRef.current) {
+        audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjOM0fDTgjMGHm7A7+OZSA0PVqzn7bBlGw1Mn9vvwmUeByKE0e/glkIKE1yw5+2sTxINTKXe77pnHQYlhtLu4p1BCxBXrubtpFgVChBI');
+        audioRef.current.volume = 0.5;
+      }
+      audioRef.current.play().catch(err => console.log('Audio play failed:', err));
+    } catch (error) {
+      console.error('Failed to play notification sound:', error);
+    }
+  };
+
+  const getNotificationText = (notification) => {
+    switch (notification.type) {
+      case 'COMMENT':
+        return 'commented on your post';
+      case 'FRIEND_REQUEST':
+        return 'sent you a friend request';
+      case 'FRIEND_ACCEPT':
+        return 'accepted your friend request';
+      case 'MESSAGE':
+        return 'sent you a message';
+      default:
+        return notification.content || 'sent a notification';
+    }
+  };
 
   const loadNotifications = async () => {
     try {
@@ -123,6 +175,15 @@ const Sidebar = ({ user }) => {
           <span className="text-xl">🔍</span>
           <span>Search</span>
         </button>
+
+        {/* Admin Panel - only show for admin/moderator */}
+        {user && (user.role === 'ADMIN' || user.role === 'MODERATOR') && (
+          <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
+            <span className="text-xl">👑</span>
+            <span>Admin Panel</span>
+          </Link>
+        )}
+
         <Link to="/settings" className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
           <span className="text-xl">⚙️</span>
           <span>Settings</span>

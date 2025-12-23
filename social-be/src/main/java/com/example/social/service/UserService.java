@@ -143,6 +143,8 @@ public class UserService {
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .avatarUrl(user.getAvatarUrl())
+                .bio(user.getBio())
+                .role(user.getRole())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
