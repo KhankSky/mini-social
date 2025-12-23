@@ -77,7 +77,7 @@ const Sidebar = ({ user }) => {
       </div>
 
       <nav className="space-y-2 flex-1">
-        <Link to="/feed" className="w-full flex items-center gap-3 px-4 py-3 bg-black text-white rounded-full">
+        <Link to="/" className="w-full flex items-center gap-3 px-4 py-3 bg-black text-white rounded-full">
           <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-black text-xs">📰</div>
           <span>News Feed</span>
         </Link>
