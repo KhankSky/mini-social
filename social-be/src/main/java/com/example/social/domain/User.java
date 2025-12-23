@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users", indexes = {@Index(name = "idx_username", columnList = "username")})
+@Table(name = "users", indexes = { @Index(name = "idx_username", columnList = "username") })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -53,6 +53,10 @@ public class User {
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role = Role.USER;
 
     // Relations
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

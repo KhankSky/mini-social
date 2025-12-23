@@ -4,6 +4,7 @@ import com.minisocial.desktop.UserSession;
 import com.minisocial.desktop.view.layout.main.MainLayoutController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 
 public class LeftSidebarController {
     private final UserSession session;
@@ -13,6 +14,8 @@ public class LeftSidebarController {
     private Label fullNameLabel;
     @FXML
     private Label usernameLabel;
+    @FXML
+    private Button adminButton;
 
     public LeftSidebarController(UserSession session, MainLayoutController mainController) {
         this.session = session;
@@ -26,6 +29,13 @@ public class LeftSidebarController {
         }
         if (usernameLabel != null) {
             usernameLabel.setText("@" + session.getUsername());
+        }
+
+        // Show admin button only for admin/moderator
+        if (adminButton != null) {
+            String role = session.getRole();
+            adminButton.setVisible(role != null && (role.equals("ADMIN") || role.equals("MODERATOR")));
+            adminButton.setManaged(role != null && (role.equals("ADMIN") || role.equals("MODERATOR")));
         }
     }
 
@@ -62,5 +72,10 @@ public class LeftSidebarController {
     @FXML
     private void handleSettings() {
         mainController.showSettings();
+    }
+
+    @FXML
+    private void handleAdmin() {
+        mainController.showAdmin();
     }
 }

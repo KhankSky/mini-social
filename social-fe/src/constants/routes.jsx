@@ -3,12 +3,11 @@ import Feed from "../pages/Feed.jsx";
 import Friends from "../pages/Friends.jsx";
 import Login from "../pages/Login.jsx";
 import Register from "../pages/Register.jsx";
-import AdminLayout from "../layouts/AdminLayout.jsx";
-import Users from "../pages/admin/Users.jsx";
 import ProtectedRoute from "../components/ProtectedRoute.jsx";
 import Messages from "../pages/Messages.jsx";
 import CallWindowPage from "../pages/CallWindowPage.jsx";
 import SettingsPage from "../pages/SettingsPage.jsx";
+import AdminPage from "../pages/admin/AdminPage.jsx";
 
 export const routes = [
   {
@@ -24,6 +23,10 @@ export const routes = [
         element: <Feed />,
       },
       {
+        path: "feed",
+        element: <Feed />,
+      },
+      {
         path: "messages",
         element: <Messages />,
       },
@@ -34,6 +37,10 @@ export const routes = [
       {
         path: "settings",
         element: <SettingsPage />,
+      },
+      {
+        path: "admin",
+        element: <AdminPage />,
       },
     ],
   },
@@ -48,18 +55,6 @@ export const routes = [
   {
     path: "/call-window",
     element: <CallWindowPage />,
-  },
-  {
-    path: "/admin",
-    element: (
-      <ProtectedRoute>
-        <AdminLayout />
-      </ProtectedRoute>
-    ),
-    children: [
-      { index: true, element: <div>Admin Home</div> },
-      { path: "users", element: <Users /> },
-    ],
   },
 ];
 

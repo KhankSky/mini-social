@@ -1,9 +1,11 @@
 package com.minisocial.desktop.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CommentDTO {
     
     private Long id;

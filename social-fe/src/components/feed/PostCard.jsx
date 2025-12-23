@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { fetchComments, createComment } from '../../services/comment';
+import { likePost, unlikePost } from '../../services/post';
 import { API_ORIGIN } from '../../config/HttpClient';
 
 const resolveImageUrl = (url, fallback = '') => {
   if (!url || url.trim().length === 0) return fallback;
   const trimmed = url.trim();
-  
 
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
   }
-  
 
   if (trimmed.startsWith('//')) {
     return `https:${trimmed}`;
   }
-  
 
   if (trimmed.startsWith('/')) {
     return `${API_ORIGIN}${trimmed}`;
   }
-  
 
   return `${API_ORIGIN}/uploads/${trimmed}`;
 };
@@ -175,6 +172,11 @@ const PostCard = ({ post }) => {
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
 
+  // Like state
+  const [isLiked, setIsLiked] = useState(post.isLikedByCurrentUser || false);
+  const [likeCount, setLikeCount] = useState(post.likeCount || 0);
+  const [likeAnimating, setLikeAnimating] = useState(false);
+
   const loadComments = async () => {
     if (loadingComments) return;
     try {
@@ -237,25 +239,48 @@ const PostCard = ({ post }) => {
     setComments((prev) => addReply(prev));
   };
 
+  const handleToggleLike = async () => {
+    const prevLiked = isLiked;
+    const prevCount = likeCount;
+
+    // Optimistic update
+    setIsLiked(!prevLiked);
+    setLikeCount(prevLiked ? prevCount - 1 : prevCount + 1);
+    setLikeAnimating(true);
+    setTimeout(() => setLikeAnimating(false), 300); // Reset animation state
+
+    try {
+      if (prevLiked) {
+        await unlikePost(post.id);
+      } else {
+        await likePost(post.id);
+      }
+    } catch (error) {
+      console.error("Failed to toggle like", error);
+      // Revert if failed
+      setIsLiked(prevLiked);
+      setLikeCount(prevCount);
+    }
+  };
+
+
   // Ưu tiên lấy danh sách attachments từ API (database).
   // Nếu không có, fallback sang imageUrl (trường cũ) để hiển thị ảnh đơn.
   const attachments = (post.attachments && post.attachments.length > 0)
     ? post.attachments
     : (post.imageUrl
-        ? [{ id: post.id || 'imageUrl', fileUrl: post.imageUrl, fileName: 'image' }]
-        : []);
-  const likeCount = post.likeCount ?? 0;
-  const commentCount = post.commentCount ?? comments.length;
- 
-  
+      ? [{ id: post.id || 'imageUrl', fileUrl: post.imageUrl, fileName: 'image' }]
+      : []);
 
-  const bgClass = post.content && post.content.includes('mountain') ? 'bg-blue-100' : 
-                  post.content && post.content.includes('coffee') ? 'bg-amber-50' : 
-                  'bg-white';
-  
+  // const likeCount = post.likeCount ?? 0; // Removed, using state
+  const commentCount = post.commentCount ?? comments.length;
+
+
+  const bgClass = post.content && post.content.includes('mountain') ? 'bg-blue-100' :
+    post.content && post.content.includes('coffee') ? 'bg-amber-50' :
+      'bg-white';
 
   const reactions = attachments.length > 0 ? ['🔥', '😍', '😱', '👍', '❤️'] : null;
-
 
   const extractTags = (content) => {
     if (!content) return [];
@@ -277,7 +302,7 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <article className={`${bgClass} rounded-3xl p-6 mb-6`}>
+    <article className={`${bgClass} rounded-3xl p-6 mb-6 transition-all duration-300`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <img
@@ -324,21 +349,24 @@ const PostCard = ({ post }) => {
 
       {attachments.length > 0 && buildGalleryLayout(attachments, reactions)}
 
-      <div className="flex items-center gap-6 text-gray-600">
-        <button className="flex items-center gap-2 hover:text-red-500">
-          <span className="text-lg">❤️</span>
-          <span>Like</span>
+      <div className="flex items-center gap-6 text-gray-600 border-t pt-3 mt-2">
+        <button
+          className={`flex items-center gap-2 transition-transform duration-200 ${likeAnimating ? 'scale-125' : 'scale-100'} ${isLiked ? 'text-red-500 font-bold' : 'hover:text-red-500'}`}
+          onClick={handleToggleLike}
+        >
+          <span className="text-lg">{isLiked ? '❤️' : '🤍'}</span>
+          <span>{likeCount > 0 ? likeCount : 'Like'}</span>
         </button>
-        <button 
+        <button
           className="flex items-center gap-2 hover:text-blue-500"
           type="button"
           onClick={handleToggleComments}
         >
           <span className="text-lg">💬</span>
-          <span>Comment</span>
+          <span>{comments.length > 0 ? comments.length : 'Comment'}</span>
         </button>
         {attachments.length > 0 && (
-          <button className="ml-auto bg-gradient-to-r from-orange-400 to-pink-500 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2">
+          <button className="ml-auto bg-gradient-to-r from-orange-400 to-pink-500 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
             🔥 Wooow!!!
           </button>
         )}
@@ -349,25 +377,31 @@ const PostCard = ({ post }) => {
           <div className="flex items-start gap-2 mb-3">
             <input
               type="text"
-              className="flex-1 rounded-full border px-3 py-1 text-sm"
+              className="flex-1 rounded-full border px-3 py-1 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               placeholder="Write a comment..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleCreateComment();
+                }
+              }}
             />
             <button
               type="button"
               onClick={handleCreateComment}
               disabled={submittingComment || !newComment.trim()}
-              className="text-sm px-3 py-1 rounded-full bg-blue-600 text-white disabled:bg-blue-300"
+              className="text-sm px-4 py-1.5 rounded-full bg-blue-600 text-white disabled:bg-indigo-300 hover:bg-blue-700 transition-colors"
             >
               Send
             </button>
           </div>
 
           {loadingComments ? (
-            <p className="mt-2 text-xs text-gray-500">Loading comments...</p>
+            <p className="mt-2 text-xs text-gray-500 animate-pulse">Loading comments...</p>
           ) : (
-            <div className="mt-2">
+            <div className="mt-2 space-y-3">
               {comments.map((c) => (
                 <CommentItem key={c.id} comment={c} onReply={handleReply} />
               ))}

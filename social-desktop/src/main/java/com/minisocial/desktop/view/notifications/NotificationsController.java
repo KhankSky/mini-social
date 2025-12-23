@@ -1,6 +1,8 @@
 package com.minisocial.desktop.view.notifications;
 
 import com.minisocial.desktop.service.WebSocketService;
+import com.minisocial.desktop.service.NotificationPopupService;
+import com.minisocial.desktop.service.SystemTrayNotificationService;
 import com.minisocial.desktop.config.AppConfig;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -29,6 +31,7 @@ public class NotificationsController {
     private ListView<Map<String, Object>> notificationListView;
 
     private final WebSocketService webSocketService = new WebSocketService();
+    private final NotificationPopupService popupService = new NotificationPopupService();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
@@ -120,7 +123,16 @@ public class NotificationsController {
                 },
                 notification -> {
                     Map<String, Object> notifMap = (Map<String, Object>) notification;
-                    Platform.runLater(() -> notificationListView.getItems().add(0, notifMap));
+                    Platform.runLater(() -> {
+                        // Add to list view
+                        notificationListView.getItems().add(0, notifMap);
+
+                        // Show popup notification
+                        popupService.showNotification(notifMap);
+
+                        // Show system tray notification
+                        SystemTrayNotificationService.showNotification(notifMap);
+                    });
                 });
     }
 

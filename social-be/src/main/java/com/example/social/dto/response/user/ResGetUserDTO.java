@@ -1,5 +1,6 @@
 package com.example.social.dto.response.user;
 
+import com.example.social.domain.Role;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class ResGetUserDTO {
     private String avatarUrl;
     private String bio;
     private String relationStatus;
+    private Role role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

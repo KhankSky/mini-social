@@ -24,7 +24,8 @@ public class ResGetPostDTO {
     private Long commentCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
+    private Boolean isLikedByCurrentUser;
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter

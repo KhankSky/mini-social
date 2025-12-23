@@ -85,6 +85,11 @@ public class MainLayoutController {
                 param -> new com.minisocial.desktop.view.settings.SettingsController());
     }
 
+    public void showAdmin() {
+        loadView("/view/admin/admin.fxml",
+                param -> new com.minisocial.desktop.view.admin.AdminController());
+    }
+
     private void loadView(String fxmlPath, javafx.util.Callback<Class<?>, Object> controllerFactory) {
         try {
             URL url = MainLayoutController.class.getResource(fxmlPath);
