@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. Database Service
   mysql:
     image: mysql:8.0
     container_name: mysql-prod
@@ -12,25 +11,24 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      # Sử dụng đường dẫn tuyệt đối hoặc cụ thể để tránh lạc mất dữ liệu
+      - ./mysql_data:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
     networks:
       - social-network
 
-  # 2. Backend Service
   social-be:
-    # Image name should match what you push to Docker Hub
     image: ${DOCKER_HUB_USERNAME}/social-be:latest
     container_name: social-be
     restart: always
     ports:
-      - "8080:9090"
+      - "8080:9090" # Khuyên dùng 8080 cho cả trong lẫn ngoài cho đỡ nhầm
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/social_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      # Thêm param autoReconnect và createDatabaseIfNotExist
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/social_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      # Tinh chỉnh RAM cho Java
       - JAVA_OPTS=-Xms512m -Xmx1024m
     depends_on:
       - mysql
@@ -40,19 +38,15 @@ services:
       - ./uploads:/app/uploads
       - ./logs:/app/logs
 
-  # 3. Frontend Service
   social-fe:
     image: ${DOCKER_HUB_USERNAME}/social-fe:latest
     container_name: social-fe
     restart: always
     ports:
-      - "80:5173" # Map port 80 của server vào port 5173 của container (Nginx)
+      - "80:5173"
     networks:
       - social-network
 
 networks:
   social-network:
     driver: bridge
-
-volumes:
-  mysql_data:
