@@ -4,6 +4,7 @@ import com.minisocial.desktop.service.WebSocketService;
 import com.minisocial.desktop.service.NotificationPopupService;
 import com.minisocial.desktop.service.SystemTrayNotificationService;
 import com.minisocial.desktop.config.AppConfig;
+import com.minisocial.desktop.AppNavigator;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
@@ -34,6 +35,7 @@ public class NotificationsController {
     private final NotificationPopupService popupService = new NotificationPopupService();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private AppNavigator appNavigator;
 
     public NotificationsController() {
         objectMapper.registerModule(new JavaTimeModule());
@@ -44,6 +46,13 @@ public class NotificationsController {
         setupListView();
         loadNotifications();
         connectWebSocket();
+
+        // Mark all notifications as read when the view is loaded
+        markAllNotificationsAsRead();
+    }
+
+    public void setAppNavigator(AppNavigator appNavigator) {
+        this.appNavigator = appNavigator;
     }
 
     private void setupListView() {
@@ -136,6 +145,29 @@ public class NotificationsController {
                 });
     }
 
+    private void markAllNotificationsAsRead() {
+        new Thread(() -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(AppConfig.SERVER_BASE_URL + "/api/notifications/read-all"))
+                        .header("Authorization", AppConfig.AUTH_TOKEN)
+                        .PUT(HttpRequest.BodyPublishers.noBody())
+                        .build();
+
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                // Update the notification indicator in the sidebar
+                Platform.runLater(() -> {
+                    if (appNavigator != null && appNavigator.getCurrentMainLayoutController() != null) {
+                        appNavigator.getCurrentMainLayoutController().getLeftSidebarController().hideNotificationIndicator();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     @FXML
     private void handleMarkAllRead() {
         new Thread(() -> {
@@ -148,6 +180,13 @@ public class NotificationsController {
 
                 httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 loadNotifications(); // Reload to update UI
+
+                // Update the notification indicator in the sidebar
+                Platform.runLater(() -> {
+                    if (appNavigator != null && appNavigator.getCurrentMainLayoutController() != null) {
+                        appNavigator.getCurrentMainLayoutController().getLeftSidebarController().hideNotificationIndicator();
+                    }
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }

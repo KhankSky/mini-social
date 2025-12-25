@@ -4,6 +4,7 @@ public class UserSession {
     private Long userId = 1L; // Default ID for mockup
     private String username = "guest";
     private String fullName = "Guest User";
+    private String avatarUrl = null;
     private String role = "USER"; // Default role
 
     public Long getUserId() {
@@ -30,6 +31,14 @@ public class UserSession {
         this.fullName = fullName;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public String getRole() {
         return role;
     }
@@ -42,6 +51,7 @@ public class UserSession {
         this.userId = null;
         this.username = null;
         this.fullName = null;
+        this.avatarUrl = null;
         this.role = null;
     }
 }
