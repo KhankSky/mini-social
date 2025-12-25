@@ -4,6 +4,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.image.ImageView?>
 <?import org.kordamp.ikonli.javafx.*?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
@@ -14,7 +15,9 @@
         <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
     </padding>
     <HBox spacing="12" alignment="CENTER_LEFT">
-        <Circle radius="28" fill="linear-gradient(to bottom, #6366f1, #a855f7)"/>
+        <StackPane>
+            <ImageView fx:id="avatarImageView" fitWidth="56" fitHeight="56" pickOnBounds="true" preserveRatio="true"/>
+        </StackPane>
         <VBox spacing="4">
             <Label fx:id="fullNameLabel" styleClass="profile-name" text="User Name"/>
             <Label fx:id="usernameLabel" styleClass="profile-username" text="@username"/>
@@ -22,7 +25,7 @@
     </HBox>
 
     <VBox spacing="8">
-        <Button maxWidth="Infinity" styleClass="nav-button,primary-nav" onAction="#handleFeed">
+        <Button fx:id="feedButton" maxWidth="Infinity" styleClass="nav-button,primary-nav" onAction="#handleFeed">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-newspaper" iconSize="16" iconColor="white"/>
@@ -30,7 +33,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleMessages">
+        <Button fx:id="messagesButton" maxWidth="Infinity" styleClass="nav-button" onAction="#handleMessages">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-envelope" iconSize="16" iconColor="#1f2937"/>
@@ -38,15 +41,22 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleNotifications">
+        <Button fx:id="notificationsButton" maxWidth="Infinity" styleClass="nav-button" onAction="#handleNotifications">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <FontIcon iconLiteral="fas-bell" iconSize="16" iconColor="#1f2937"/>
+                    <StackPane>
+                        <FontIcon iconLiteral="fas-bell" iconSize="16" iconColor="#1f2937"/>
+                        <Circle fx:id="notificationIndicator"
+                                radius="6"
+                                fill="red"
+                                visible="false"
+                                style="-fx-stroke: white; -fx-stroke-width: 1;"/>
+                    </StackPane>
                     <Label text="Notifications" styleClass="nav-label"/>
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleFriends">
+        <Button fx:id="friendsButton" maxWidth="Infinity" styleClass="nav-button" onAction="#handleFriends">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-user-friends" iconSize="16" iconColor="#1f2937"/>
@@ -54,7 +64,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleSearch">
+        <Button fx:id="searchButton" maxWidth="Infinity" styleClass="nav-button" onAction="#handleSearch">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#1f2937"/>
@@ -62,7 +72,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleSettings">
+        <Button fx:id="settingsButton" maxWidth="Infinity" styleClass="nav-button" onAction="#handleSettings">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-cog" iconSize="16" iconColor="#1f2937"/>
@@ -70,7 +80,7 @@
                 </HBox>
             </graphic>
         </Button>
-        <Button maxWidth="Infinity" styleClass="nav-button" onAction="#handleLogout">
+        <Button fx:id="logoutButton" maxWidth="Infinity" styleClass="nav-button" onAction="#handleLogout">
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" iconColor="#ef4444"/>

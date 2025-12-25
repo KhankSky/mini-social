@@ -17,6 +17,7 @@ import com.example.social.repository.PostLikeRepository;
 import com.example.social.repository.PostRepository;
 import com.example.social.repository.UserRepository;
 import com.example.social.security.SecurityUtils;
+import com.example.social.service.PostLikeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,19 +38,22 @@ public class PostService {
     private final FileStorageService fileStorageService;
     private final PostLikeRepository postLikeRepository;
     private final NotificationService notificationService;
+    private final PostLikeService postLikeService;
 
     public PostService(PostRepository postRepository,
             UserRepository userRepository,
             AttachmentRepository attachmentRepository,
             FileStorageService fileStorageService,
             PostLikeRepository postLikeRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            PostLikeService postLikeService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.attachmentRepository = attachmentRepository;
         this.fileStorageService = fileStorageService;
         this.postLikeRepository = postLikeRepository;
         this.notificationService = notificationService;
+        this.postLikeService = postLikeService;
     }
 
     @Transactional
@@ -200,56 +204,15 @@ public class PostService {
 
     @Transactional
     public void likePost(Long postId, String userEmail) throws ResourceNotFoundException {
-        User user = userRepository.findByEmail(userEmail);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
-
-        // Check if already liked
-        if (postLikeRepository.existsByPostIdAndUserId(postId, user.getId())) {
-            return; // Already liked, do nothing
-        }
-
-        // Create like
-        PostLike like = new PostLike();
-        like.setPost(post);
-        like.setUser(user);
-        postLikeRepository.save(like);
-
-        // Send notification to post owner
-        if (!post.getUser().getId().equals(user.getId())) {
-            notificationService.createNotification(
-                    post.getUser(),
-                    user,
-                    "LIKE",
-                    "liked your post",
-                    postId.toString());
-        }
+        postLikeService.likePost(postId, userEmail);
     }
 
     @Transactional
     public void unlikePost(Long postId, String userEmail) throws ResourceNotFoundException {
-        User user = userRepository.findByEmail(userEmail);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
-
-        // Find and delete like
-        postLikeRepository.findByPostIdAndUserId(postId, user.getId())
-                .ifPresent(postLikeRepository::delete);
+        postLikeService.unlikePost(postId, userEmail);
     }
 
     public boolean isPostLikedByUser(Long postId, String userEmail) {
-        User user = userRepository.findByEmail(userEmail);
-        if (user == null) {
-            return false;
-        }
-        return postLikeRepository.existsByPostIdAndUserId(postId, user.getId());
+        return postLikeService.isPostLikedByUser(postId, userEmail);
     }
 }
