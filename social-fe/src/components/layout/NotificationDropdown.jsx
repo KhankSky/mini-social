@@ -1,5 +1,8 @@
 import React, { useRef, useEffect } from "react";
-import { formatDistanceToNow } from "date-fns";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const NotificationDropdown = ({ notifications, onMarkRead, onClose }) => {
     const dropdownRef = useRef(null);
@@ -65,9 +68,7 @@ const NotificationDropdown = ({ notifications, onMarkRead, onClose }) => {
                                         {getNotificationText(notification)}
                                     </p>
                                     <p className="text-xs text-gray-400 mt-1">
-                                        {formatDistanceToNow(new Date(notification.createdAt), {
-                                            addSuffix: true,
-                                        })}
+                                        {dayjs(notification.createdAt).fromNow()}
                                     </p>
                                 </div>
                                 {!notification.isRead && (
