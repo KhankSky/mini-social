@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 const ToastNotification = ({ notification, onClose, onClick }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -91,7 +94,7 @@ const ToastNotification = ({ notification, onClose, onClick }) => {
                         </button>
                     </div>
                     <p className="text-xs text-gray-400 mt-1">
-                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                        {dayjs(notification.createdAt).fromNow()}
                     </p>
                 </div>
             </div>

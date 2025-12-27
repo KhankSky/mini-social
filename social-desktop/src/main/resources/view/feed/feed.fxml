@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.shape.*?>
+<?import javafx.scene.image.ImageView?>
 <?import org.kordamp.ikonli.javafx.*?>
 
 <ScrollPane xmlns="http://javafx.com/javafx/17"
@@ -21,7 +22,9 @@
 
         <VBox spacing="12" maxWidth="800" styleClass="compose-card">
             <HBox spacing="12" alignment="CENTER_LEFT">
-                <Circle radius="22" fill="linear-gradient(to bottom, #6366f1, #a855f7)"/>
+                <StackPane>
+                    <ImageView fx:id="composeAvatarImageView" fitWidth="44" fitHeight="44" pickOnBounds="true" preserveRatio="true"/>
+                </StackPane>
                 <TextArea fx:id="composeText" promptText="Share something..." prefRowCount="2" wrapText="true" HBox.hgrow="ALWAYS"/>
             </HBox>
             
@@ -78,8 +81,8 @@
                 <Button styleClass="ghost-button">
                     <graphic>
                         <HBox spacing="6" alignment="CENTER">
-                            <FontIcon iconLiteral="fas-user-friends" iconSize="14" iconColor="#374151"/>
-                            <Label text="Friends" styleClass="button-label"/>
+                            <FontIcon iconLiteral="fas-globe" iconSize="14" iconColor="#374151"/>
+                            <Label text="Public" styleClass="button-label"/>
                         </HBox>
                     </graphic>
                 </Button>

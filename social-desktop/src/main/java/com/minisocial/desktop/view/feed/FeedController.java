@@ -7,6 +7,7 @@ import com.minisocial.desktop.dto.*;
 import com.minisocial.desktop.service.CommentService;
 import com.minisocial.desktop.service.LocationService;
 import com.minisocial.desktop.service.PostService;
+import com.minisocial.desktop.service.PostLikeService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,6 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
@@ -43,9 +45,11 @@ public class FeedController {
     private final PostService postService;
     private final CommentService commentService;
     private final LocationService locationService;
+    private final PostLikeService postLikeService;
     private final ObservableList<PostDTO> posts = FXCollections.observableArrayList();
     private final Image defaultAvatar = new Image("https://api.dicebear.com/7.x/avataaars/png?seed=User");
 
+    @FXML private ImageView composeAvatarImageView;
     @FXML private TextArea composeText;
     @FXML private VBox postsContainer;
     @FXML private Button publishButton;
@@ -71,13 +75,49 @@ public class FeedController {
         this.postService = new PostService();
         this.commentService = new CommentService();
         this.locationService = new LocationService();
+        this.postLikeService = new PostLikeService();
     }
 
     @FXML
     private void initialize() {
         scrollPane.setFitToWidth(true);
         setupLocationAutocomplete();
+        loadUserAvatar();
         loadPosts();
+    }
+
+    private void loadUserAvatar() {
+        if (composeAvatarImageView != null) {
+            String avatarUrl = session.getAvatarUrl();
+            Image defaultAvatar = new Image("https://api.dicebear.com/7.x/avataaars/png?seed=" + session.getUsername());
+            Image avatarImage = defaultAvatar;
+
+            if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                try {
+                    avatarImage = new Image(avatarUrl, true);
+                    avatarImage.errorProperty().addListener((obs, oldError, newError) -> {
+                        if (newError) {
+                            // If avatar fails to load, use default avatar
+                            Platform.runLater(() -> composeAvatarImageView.setImage(defaultAvatar));
+                        }
+                    });
+                } catch (Exception e) {
+                    // If there's an exception creating the image, use default avatar
+                    avatarImage = defaultAvatar;
+                }
+            }
+
+            composeAvatarImageView.setImage(avatarImage);
+            composeAvatarImageView.setFitWidth(44);
+            composeAvatarImageView.setFitHeight(44);
+            composeAvatarImageView.setPreserveRatio(true);
+            composeAvatarImageView.setSmooth(true);
+            composeAvatarImageView.setPickOnBounds(true);
+
+            // Create circular clip
+            Circle clip = new Circle(22, 22, 22);
+            composeAvatarImageView.setClip(clip);
+        }
     }
 
     private void setupLocationAutocomplete() {
@@ -384,15 +424,15 @@ public class FeedController {
             cardContent.getChildren().add(imagesBox);
         }
 
-        Button likeBtn = pillButton("fas-heart", "Like (" + (post.getLikeCount() != null ? post.getLikeCount() : 0) + ")");
+        Button likeBtn = createLikeButton(post);
         Button commentBtn = pillButton("fas-comment", "Comment (" + (post.getCommentCount() != null ? post.getCommentCount() : 0) + ")");
         Button shareBtn = pillButton("fas-share", "Share");
-        
+
         commentBtn.setOnAction(e -> showCommentsDialog(post));
-        
+
         HBox actions = new HBox(16, likeBtn, commentBtn, shareBtn);
         actions.setAlignment(Pos.CENTER_LEFT);
-        
+
         cardContent.getChildren().add(actions);
 
         // Card
@@ -850,5 +890,91 @@ public class FeedController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private Button createLikeButton(PostDTO post) {
+        Button likeBtn = pillButton("fas-heart", "Like (" + (post.getLikeCount() != null ? post.getLikeCount() : 0) + ")");
+
+        // Update button state based on whether post is liked by current user
+        Platform.runLater(() -> updateLikeButton(likeBtn, post, post.getIsLikedByCurrentUser() != null && post.getIsLikedByCurrentUser()));
+
+        likeBtn.setOnAction(e -> {
+            likeBtn.setDisable(true);
+            new Thread(() -> {
+                try {
+                    boolean isLiked = post.getIsLikedByCurrentUser() != null && post.getIsLikedByCurrentUser();
+                    if (isLiked) {
+                        postLikeService.unlikePost(post.getId());
+                        Platform.runLater(() -> {
+                            post.setLikeCount(post.getLikeCount() - 1);
+                            post.setIsLikedByCurrentUser(false);
+                            updateLikeButton(likeBtn, post, false);
+                        });
+                    } else {
+                        postLikeService.likePost(post.getId());
+                        Platform.runLater(() -> {
+                            post.setLikeCount(post.getLikeCount() + 1);
+                            post.setIsLikedByCurrentUser(true);
+                            updateLikeButton(likeBtn, post, true);
+                        });
+                    }
+                } catch (Exception ex) {
+                    Platform.runLater(() -> {
+                        showAlert("Error", "Failed to update like: " + ex.getMessage());
+                        likeBtn.setDisable(false);
+                    });
+                }
+            }).start();
+        });
+
+        return likeBtn;
+    }
+
+    private void updateLikeButton(Button likeBtn, PostDTO post, boolean isLiked) {
+        FontIcon icon = (FontIcon) ((HBox) likeBtn.getGraphic()).getChildren().get(0);
+        Label label = (Label) ((HBox) likeBtn.getGraphic()).getChildren().get(1);
+
+        if (isLiked) {
+            icon.setIconColor(javafx.scene.paint.Color.web("#ef4444")); // Red color for liked
+            label.setText("Liked (" + post.getLikeCount() + ")");
+        } else {
+            icon.setIconColor(javafx.scene.paint.Color.web("#6b7280")); // Gray color for not liked
+            label.setText("Like (" + post.getLikeCount() + ")");
+        }
+        likeBtn.setDisable(false);
+    }
+
+    public void updateUserAvatar() {
+        if (composeAvatarImageView != null) {
+            String avatarUrl = session.getAvatarUrl();
+            Image defaultAvatar = new Image("https://api.dicebear.com/7.x/avataaars/png?seed=" + session.getUsername());
+            Image avatarImage = defaultAvatar;
+
+            if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                try {
+                    avatarImage = new Image(avatarUrl, true);
+                    avatarImage.errorProperty().addListener((obs, oldError, newError) -> {
+                        if (newError) {
+                            // If avatar fails to load, use default avatar
+                            Platform.runLater(() -> composeAvatarImageView.setImage(defaultAvatar));
+                        }
+                    });
+                } catch (Exception e) {
+                    // If there's an exception creating the image, use default avatar
+                    avatarImage = defaultAvatar;
+                }
+            }
+
+            composeAvatarImageView.setImage(avatarImage);
+            composeAvatarImageView.setFitWidth(44);
+            composeAvatarImageView.setFitHeight(44);
+            composeAvatarImageView.setPreserveRatio(true);
+            composeAvatarImageView.setSmooth(true);
+            composeAvatarImageView.setPickOnBounds(true);
+
+            // Create circular clip
+            Circle clip = new Circle(22, 22, 22);
+            composeAvatarImageView.setClip(clip);
+        }
     }
 }

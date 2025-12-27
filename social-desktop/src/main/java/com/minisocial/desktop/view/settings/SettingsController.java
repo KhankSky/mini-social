@@ -11,6 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
+import com.minisocial.desktop.view.layout.main.MainLayoutController;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -20,7 +21,11 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.minisocial.desktop.UserSession;
+
 public class SettingsController {
+    private final UserSession session;
+    private MainLayoutController mainLayoutController;
 
     @FXML
     private TextField usernameField;
@@ -41,6 +46,11 @@ public class SettingsController {
             .build();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Long userId; // We need to know current user ID
+
+    public SettingsController(UserSession session, MainLayoutController mainLayoutController) {
+        this.session = session;
+        this.mainLayoutController = mainLayoutController;
+    }
 
     @FXML
     private VBox profileView;
@@ -140,6 +150,15 @@ public class SettingsController {
 
                 Platform.runLater(() -> {
                     if (response.statusCode() == 200) {
+                        // Update the user session with the new avatar URL
+                        String newAvatarUrl = avatarUrlField.getText();
+                        session.setAvatarUrl(newAvatarUrl);
+
+                        // Update avatars in all relevant UI components
+                        if (mainLayoutController != null) {
+                            mainLayoutController.updateAllAvatars();
+                        }
+
                         showAlert(Alert.AlertType.INFORMATION, "Success", "Profile updated successfully!");
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Error", "Failed to update profile.");

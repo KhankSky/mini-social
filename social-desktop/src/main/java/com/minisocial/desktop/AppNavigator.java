@@ -18,6 +18,7 @@ public class AppNavigator {
     private final Stage stage;
     private final UserSession session;
     private final List<String> stylesheets;
+    private MainLayoutController mainLayoutController;
 
     public AppNavigator(Stage stage, UserSession session) {
         this.stage = stage;
@@ -41,18 +42,26 @@ public class AppNavigator {
     }
 
     public void showFeed() {
-        loadScene("/view/layout/main/main_layout.fxml", loader -> new MainLayoutController(this, session),
+        loadScene("/view/layout/main/main_layout.fxml",
+                  loader -> {
+                      mainLayoutController = new MainLayoutController(this, session);
+                      return mainLayoutController;
+                  },
                   stylesheets);
     }
 
-    private void loadScene(String fxmlPath, javafx.util.Callback<Class<?>, Object> controllerFactory, 
+    public MainLayoutController getCurrentMainLayoutController() {
+        return mainLayoutController;
+    }
+
+    private void loadScene(String fxmlPath, javafx.util.Callback<Class<?>, Object> controllerFactory,
                           List<String> cssFiles) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             loader.setControllerFactory(controllerFactory);
             Parent root = loader.load();
             Scene scene = new Scene(root);
-            
+
             // Load CSS files
             for (String cssPath : cssFiles) {
                 URL css = getClass().getResource(cssPath);
@@ -60,7 +69,7 @@ public class AppNavigator {
                     scene.getStylesheets().add(css.toExternalForm());
                 }
             }
-            
+
             stage.setScene(scene);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to load view: " + fxmlPath, e);

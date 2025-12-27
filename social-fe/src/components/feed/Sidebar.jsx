@@ -153,7 +153,7 @@ const Sidebar = ({ user }) => {
             )}
           </button>
           {showDropdown && (
-            <div className="absolute left-0 mt-2 w-full z-50">
+            <div className="absolute left-full ml-2 top-0 z-50">
               <NotificationDropdown
                 notifications={notifications}
                 onMarkRead={handleMarkRead}
@@ -168,21 +168,9 @@ const Sidebar = ({ user }) => {
           <span>Friends</span>
           <span className="ml-auto bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
         </Link>
-        <button
-          onClick={() => setShowSearch(true)}
-          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full"
-        >
-          <span className="text-xl">🔍</span>
-          <span>Search</span>
-        </button>
 
-        {/* Admin Panel - only show for admin/moderator */}
-        {user && (user.role === 'ADMIN' || user.role === 'MODERATOR') && (
-          <Link to="/admin" className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
-            <span className="text-xl">👑</span>
-            <span>Admin Panel</span>
-          </Link>
-        )}
+
+
 
         <Link to="/settings" className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-full">
           <span className="text-xl">⚙️</span>

@@ -31,4 +31,20 @@ export const fetchPosts = async (page = 1, size = 5) => {
   });
 };
 
+export const likePost = async (postId) => {
+  return httpClient.post(`/likes/post/${postId}`);
+};
+
+export const unlikePost = async (postId) => {
+  return httpClient.delete(`/likes/post/${postId}`);
+};
+
+export const isPostLikedByCurrentUser = async (postId) => {
+  return httpClient.get(`/likes/post/${postId}/is-liked`);
+};
+
+export const getPostLikeCount = async (postId) => {
+  return httpClient.get(`/likes/post/${postId}/count`);
+};
+
 
