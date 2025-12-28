@@ -53,42 +53,59 @@ const RightSidebar = () => {
   return (
     <>
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Suggestions</h2>
-          <a href="/friends" className="text-sm text-gray-500 hover:text-black">See all</a>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-900">Suggestions</h2>
+          <a href="/friends" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">See all</a>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {suggestions.length === 0 ? (
-            <p className="text-gray-500 text-sm">No suggestions available</p>
+            <div className="text-center py-8 bg-white rounded-2xl shadow-sm border border-gray-100">
+              <p className="text-gray-500 text-sm">No suggestions available</p>
+            </div>
           ) : (
-            suggestions.map((user) => {
+            suggestions.map((user, index) => {
               const avatarUrl = user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || user.email)}&background=random`;
               const isSent = sentRequests.has(user.id);
 
               return (
-                <div key={user.id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex items-center gap-4">
                     <img
                       src={avatarUrl}
                       alt={user.username || user.email}
-                      className="w-10 h-10 rounded-full object-cover"
+                      className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-50"
                     />
                     <div className="flex flex-col">
-                      <span className="font-semibold text-sm">{user.username || user.email}</span>
+                      <span className="font-bold text-gray-900 text-sm truncate max-w-[120px]" title={user.username || user.email}>
+                        {user.username || user.email}
+                      </span>
                       {user.username && (
-                        <span className="text-xs text-gray-500">{user.email}</span>
+                        <span className="text-xs text-gray-500 truncate max-w-[120px]">Suggested for you</span>
                       )}
                     </div>
                   </div>
                   <button
                     onClick={() => handleAddFriend(user.id)}
                     disabled={isSent}
-                    className={`px-4 py-1 rounded-full text-sm transition-colors ${isSent
-                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        : 'bg-black text-white hover:bg-gray-800'
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 ${isSent
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-white border-2 border-gray-100 text-gray-700 hover:border-black hover:text-black hover:bg-gray-50'
                       }`}
+                    title={isSent ? "Request Sent" : "Add Friend"}
                   >
-                    {isSent ? 'Sent' : 'Add Friend'}
+                    {isSent ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                      </svg>
+                    )}
                   </button>
                 </div>
               );
