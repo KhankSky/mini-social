@@ -14,9 +14,13 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 
+import com.minisocial.desktop.service.AuthService;
+import java.io.IOException;
+
 public class RegisterController {
     private final AppNavigator navigator;
     private final UserSession session;
+    private final AuthService authService;
 
     @FXML
     private TextField emailField;
@@ -34,6 +38,7 @@ public class RegisterController {
     public RegisterController(AppNavigator navigator, UserSession session) {
         this.navigator = navigator;
         this.session = session;
+        this.authService = new AuthService();
     }
 
     @FXML
@@ -66,13 +71,20 @@ public class RegisterController {
 
         setLoading(true);
 
-        // Simulate registration and move to login. Replace with real API later.
-        Platform.runLater(() -> {
-            // In real implementation, call API to register
-            // For now, just simulate success and go to login
-            setLoading(false);
-            navigator.showLogin();
-        });
+        new Thread(() -> {
+            try {
+                authService.register(email, username, password);
+                Platform.runLater(() -> {
+                    setLoading(false);
+                    navigator.showLogin();
+                });
+            } catch (IOException | InterruptedException e) {
+                Platform.runLater(() -> {
+                    setLoading(false);
+                    showError("Registration failed: " + e.getMessage());
+                });
+            }
+        }).start();
     }
 
     @FXML
