@@ -12,13 +12,13 @@ pipeline {
         DOCKER_CRED_ID = 'docker-hub-credentials'
         
         // Thông tin Server Deploy
-        APP_SERVER_IP = '159.223.76.30'
+        APP_SERVER_IP = '152.42.186.105'
         APP_SERVER_USER = 'root'
         DEPLOY_DIR = '/app/social'
         
         // Biến môi trường cho Frontend (API URL)
         // IP của server mới
-        VITE_API_BASE_URL = 'http://159.223.76.30:8080/api'
+        VITE_API_BASE_URL = 'http://152.42.186.105:8080/api'
     }
     
     stages {

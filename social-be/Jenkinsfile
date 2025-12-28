@@ -12,7 +12,7 @@ pipeline {
         DOCKER_CRED_ID = 'docker-hub-credentials' // ID bạn đặt trong Jenkins
         
         // Thông tin Server Deploy
-        APP_SERVER_IP = '159.223.76.30'
+        APP_SERVER_IP = '152.42.186.105'
         APP_SERVER_USER = 'root'
         DEPLOY_DIR = '/app/social' // Thư mục chứa file deploy.sh trên server
     }
