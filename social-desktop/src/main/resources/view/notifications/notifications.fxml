@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.minisocial.desktop.view.notifications.NotificationsController"
+      spacing="10" style="-fx-background-color: white;">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="Notifications" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Mark all as read" onAction="#handleMarkAllRead" style="-fx-background-color: transparent; -fx-text-fill: #4F46E5; -fx-cursor: hand;"/>
+    </HBox>
+
+    <ListView fx:id="notificationListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+
+</VBox>

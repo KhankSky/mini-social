@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<HBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.minisocial.desktop.view.messages.MessagesController"
+      spacing="0" style="-fx-background-color: white;">
+    
+    <!-- Conversation List -->
+    <VBox prefWidth="380" minWidth="380" style="-fx-border-color: #f3f4f6; -fx-border-width: 0 1 0 0;">
+        <padding>
+            <Insets top="16" right="0" bottom="0" left="0"/>
+        </padding>
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <padding>
+                <Insets left="24" right="24" bottom="16"/>
+            </padding>
+            <Label text="Messages" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button onAction="#handleNewChat" styleClass="ghost-button">
+                <graphic>
+                    <FontIcon iconLiteral="fas-edit" iconSize="18" iconColor="#4b5563"/>
+                </graphic>
+            </Button>
+        </HBox>
+        
+        <HBox spacing="10" style="-fx-background-color: #f9fafb; -fx-background-radius: 12; -fx-padding: 8 16;">
+            <VBox.margin>
+                <Insets left="24" right="24" bottom="16"/>
+            </VBox.margin>
+            <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#9ca3af"/>
+            <TextField fx:id="searchField" onKeyReleased="#handleSearch" promptText="Search messages..." HBox.hgrow="ALWAYS" 
+                       style="-fx-background-color: transparent; -fx-padding: 0;"/>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" 
+                    style="-fx-background-color: transparent; -fx-background: white; -fx-border-color: transparent;">
+            <VBox fx:id="conversationList" spacing="0"/>
+        </ScrollPane>
+    </VBox>
+    
+    <!-- Chat Window -->
+    <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: #f9fafb;">
+        <VBox fx:id="emptyChatView" alignment="CENTER" VBox.vgrow="ALWAYS" spacing="16" managed="true" visible="true">
+            <Circle radius="40" fill="#f3f4f6"/>
+            <Label text="Select a conversation to start messaging" style="-fx-text-fill: #6b7280; -fx-font-size: 16px;"/>
+        </VBox>
+        
+        <VBox fx:id="activeChatView" VBox.vgrow="ALWAYS" managed="false" visible="false">
+            <!-- Chat Header -->
+            <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: white; -fx-padding: 16 24; -fx-border-color: #f3f4f6; -fx-border-width: 0 0 1 0;">
+                <Circle fx:id="chatPartnerAvatar" radius="20" fill="#6366f1"/>
+                <VBox spacing="2">
+                    <Label fx:id="chatPartnerName" text="User Name" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                    <Label fx:id="chatPartnerStatus" text="Online" style="-fx-text-fill: #10b981; -fx-font-size: 12px;"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button onAction="#handleVoiceCall" styleClass="ghost-button">
+                    <graphic><FontIcon iconLiteral="fas-phone-alt" iconSize="18" iconColor="#4b5563"/></graphic>
+                </Button>
+                <Button onAction="#handleVideoCall" styleClass="ghost-button">
+                    <graphic><FontIcon iconLiteral="fas-video" iconSize="18" iconColor="#4b5563"/></graphic>
+                </Button>
+                <Button styleClass="ghost-button">
+                    <graphic><FontIcon iconLiteral="fas-info-circle" iconSize="18" iconColor="#4b5563"/></graphic>
+                </Button>
+            </HBox>
+            
+            <!-- Messages Area -->
+            <ScrollPane fx:id="messageScrollPane" fitToWidth="true" VBox.vgrow="ALWAYS" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        style="-fx-background-color: transparent; -fx-background: #f9fafb; -fx-border-color: transparent;">
+                <VBox fx:id="messagesContainer" spacing="16" style="-fx-padding: 24;"/>
+            </ScrollPane>
+            
+            <!-- File Preview Area -->
+            <FlowPane fx:id="filePreviewArea" hgap="8" vgap="8" style="-fx-padding: 0 24 8 24;"/>
+
+            <!-- Input Area -->
+            <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-background-color: white; -fx-padding: 16 24; -fx-border-color: #f3f4f6; -fx-border-width: 1 0 0 0;">
+                <Button styleClass="ghost-button">
+                    <graphic><FontIcon iconLiteral="fas-plus-circle" iconSize="20" iconColor="#6366f1"/></graphic>
+                </Button>
+                <Button fx:id="attachButton" onAction="#handleAttachFile" styleClass="ghost-button">
+                    <graphic><FontIcon iconLiteral="fas-image" iconSize="20" iconColor="#6366f1"/></graphic>
+                </Button>
+                <Button fx:id="recordButton" onAction="#handleVoiceRecord" styleClass="ghost-button">
+                    <graphic><FontIcon iconLiteral="fas-microphone" iconSize="20" iconColor="#6366f1"/></graphic>
+                </Button>
+                <TextArea fx:id="messageInput" promptText="Type a message..." HBox.hgrow="ALWAYS" prefRowCount="1" wrapText="true"
+                          style="-fx-background-color: #f3f4f6; -fx-background-radius: 20; -fx-padding: 8 16;"/>
+                <Button fx:id="sendButton" onAction="#handleSendMessage" styleClass="primary-button" text="Send"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</HBox>

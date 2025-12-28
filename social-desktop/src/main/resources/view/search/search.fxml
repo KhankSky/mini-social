@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.minisocial.desktop.view.search.SearchController"
+      spacing="16" style="-fx-background-color: white;">
+    
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Label text="Search Users" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #f3f4f6; -fx-background-radius: 20px; -fx-padding: 8px 16px;">
+        <FontIcon iconLiteral="fas-search" iconSize="16" iconColor="#9ca3af"/>
+        <TextField fx:id="searchField" promptText="Search by name or username..." HBox.hgrow="ALWAYS"
+                   style="-fx-background-color: transparent; -fx-prompt-text-fill: #9ca3af;"/>
+    </HBox>
+
+    <ListView fx:id="userListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+
+</VBox>

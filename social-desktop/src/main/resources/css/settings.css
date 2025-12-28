@@ -1,0 +1,107 @@
+/* Modern Settings CSS */
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-background-color: #f3f4f6;
+}
+
+.settings-container {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+}
+
+.sidebar {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 12 0 0 12;
+    -fx-border-color: transparent #e5e7eb transparent transparent;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #4b5563;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 20;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-color: transparent;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #111827;
+}
+
+.sidebar-button:selected {
+    -fx-background-color: #e0e7ff;
+    -fx-text-fill: #4f46e5;
+    -fx-border-color: transparent transparent transparent #4f46e5;
+    -fx-font-weight: bold;
+}
+
+.content-area {
+    -fx-padding: 32;
+    -fx-background-color: white;
+    -fx-background-radius: 0 12 12 0;
+}
+
+.header-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+    -fx-padding: 0 0 24 0;
+}
+
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+.text-field, .text-area, .password-field {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused, .text-area:focused, .password-field:focused {
+    -fx-border-color: #6366f1;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(99, 102, 241, 0.2), 4, 0, 0, 0);
+}
+
+.primary-button {
+    -fx-background-color: #4f46e5;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #4338ca;
+}
+
+.danger-button {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.danger-button:hover {
+    -fx-background-color: #dc2626;
+}
+
+.profile-avatar {
+    -fx-stroke: #e5e7eb;
+    -fx-stroke-width: 2;
+}
