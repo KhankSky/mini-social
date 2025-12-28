@@ -155,7 +155,7 @@ const ChatWindow = ({ activeConversation, messages, onSendMessage, currentUser, 
                     <MessageItem
                         key={msg.id || index}
                         message={msg}
-                        isOwn={msg.senderId === currentUser.id}
+                        isOwn={String(msg.senderId) === String(currentUser?.id)}
                         userAvatar={activeConversation.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${activeConversation.username}`}
                         myAvatar={currentUser.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.username}`}
                         onEditMessage={onEditMessage}

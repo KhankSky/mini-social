@@ -101,13 +101,11 @@ const Sidebar = ({ user }) => {
             )}
           </button>
           {showDropdown && (
-            <div className="absolute left-0 mt-2 w-full z-50">
-              <NotificationDropdown
-                notifications={notifications}
-                onMarkRead={handleMarkRead}
-                onClose={() => setShowDropdown(false)}
-              />
-            </div>
+            <NotificationDropdown
+              notifications={notifications}
+              onMarkRead={handleMarkRead}
+              onClose={() => setShowDropdown(false)}
+            />
           )}
         </div>
 

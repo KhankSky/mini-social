@@ -80,6 +80,9 @@ public class LoginController {
 
                         String fullNameVal = (String) userDetails.getOrDefault("fullName", usernameVal);
                         session.setFullName(fullNameVal);
+
+                        String avatarUrlVal = (String) userDetails.get("avatarUrl");
+                        session.setAvatarUrl(avatarUrlVal);
                     } else {
                         System.err.println("User details were null after successful login");
                     }

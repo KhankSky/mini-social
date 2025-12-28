@@ -21,7 +21,7 @@ const NotificationDropdown = ({ notifications, onMarkRead, onClose }) => {
     return (
         <div
             ref={dropdownRef}
-            className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fade-in-up"
+            className="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-[100] animate-fade-in-up"
         >
             <div className="flex items-center justify-between px-4 py-2 border-b border-gray-50">
                 <h3 className="font-semibold text-gray-800">Notifications</h3>

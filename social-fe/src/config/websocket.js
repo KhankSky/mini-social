@@ -10,7 +10,7 @@ export const connectWebSocket = (onMessageReceived, onConnected, onError) => {
     // Disable debug logs
     stompClient.debug = () => { };
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('social_app_token');
 
     stompClient.connect(
         { Authorization: `Bearer ${token}` },

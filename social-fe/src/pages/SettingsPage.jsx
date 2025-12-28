@@ -124,16 +124,7 @@ const SettingsPage = () => {
                             onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Avatar URL</label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black outline-none"
-                            value={profileForm.avatarUrl}
-                            onChange={(e) => setProfileForm({ ...profileForm, avatarUrl: e.target.value })}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Paste an image URL (e.g., from DiceBear or imgur).</p>
-                    </div>
+
                     <button type="submit" className="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800">
                         Save Changes
                     </button>

@@ -12,7 +12,7 @@ import httpClient from "../config/HttpClient";
 
 const Messages = () => {
     const [conversations, setConversations] = useState([]);
-    const [activeConversation, setActiveConversation] = useState([]);
+    const [activeConversation, setActiveConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);

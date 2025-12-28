@@ -38,7 +38,15 @@ public class AuthService {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
-            return response.body(); // The JWT token
+            String token = response.body();
+            // Robustly handle token - if it's wrapped in quotes (JSON style), trim them
+            if (token != null) {
+                token = token.trim();
+                if (token.startsWith("\"") && token.endsWith("\"") && token.length() > 2) {
+                    token = token.substring(1, token.length() - 1);
+                }
+            }
+            return token;
         } else if (response.statusCode() == 401) {
             throw new IOException("Invalid username or password.");
         } else {

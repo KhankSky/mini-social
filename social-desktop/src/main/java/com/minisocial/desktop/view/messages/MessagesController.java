@@ -318,7 +318,14 @@ public class MessagesController {
         item.setStyle("-fx-cursor: hand;");
         item.getStyleClass().add("conversation-item");
 
-        Circle avatar = new Circle(22, Color.web("#6366f1"));
+        Circle avatar;
+        if (conv.getAvatarUrl() != null && !conv.getAvatarUrl().isEmpty()) {
+            String avatarUrl = com.minisocial.desktop.config.AppConfig.getFullImageUrl(conv.getAvatarUrl());
+            avatar = new Circle(22);
+            avatar.setFill(new javafx.scene.paint.ImagePattern(new javafx.scene.image.Image(avatarUrl)));
+        } else {
+            avatar = new Circle(22, Color.web("#6366f1"));
+        }
 
         VBox textInfo = new VBox(4);
         Label name = new Label(conv.getUsername());
@@ -385,21 +392,22 @@ public class MessagesController {
     }
 
     private HBox createMessageBubble(MessageDTO msg) {
-        boolean isMine = msg.getSenderId().equals(session.getUserId());
+        boolean isMine = String.valueOf(msg.getSenderId()).equals(String.valueOf(session.getUserId()));
 
-        HBox container = new HBox();
+        HBox container = new HBox(8);
         container.setAlignment(isMine ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
         container.setMaxWidth(Double.MAX_VALUE);
+        container.setPadding(new Insets(4, 0, 4, 0));
 
         VBox bubble = new VBox(4);
         bubble.setMaxWidth(400);
         bubble.setPadding(new Insets(10, 14, 10, 14));
 
         if (isMine) {
-            bubble.setStyle("-fx-background-color: #6366f1; -fx-background-radius: 18 18 2 18;");
+            bubble.setStyle("-fx-background-color: #4f46e5; -fx-background-radius: 18 18 2 18;");
         } else {
             bubble.setStyle(
-                    "-fx-background-color: white; -fx-background-radius: 18 18 18 2; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);");
+                    "-fx-background-color: #f3f4f6; -fx-background-radius: 18 18 18 2; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);");
         }
 
         // Attachments
@@ -437,12 +445,47 @@ public class MessagesController {
             bubble.getChildren().add(textFlow);
         }
 
+        HBox meta = new HBox(4);
+        meta.setAlignment(isMine ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+
         Label time = new Label(msg.getSentAt().format(DateTimeFormatter.ofPattern("HH:mm")));
         time.setStyle("-fx-font-size: 10px; -fx-text-fill: " + (isMine ? "#e0e7ff" : "#9ca3af") + ";");
-        bubble.getChildren().add(time);
-        bubble.setAlignment(isMine ? Pos.BOTTOM_RIGHT : Pos.BOTTOM_LEFT);
+        meta.getChildren().add(time);
 
-        container.getChildren().add(bubble);
+        if (isMine) {
+            Label status = new Label(msg.isRead() ? "✓✓" : "✓");
+            status.setStyle("-fx-font-size: 10px; -fx-text-fill: " + (msg.isRead() ? "#10b981" : "#e0e7ff") + ";");
+            meta.getChildren().add(status);
+        }
+
+        bubble.getChildren().add(meta);
+
+        if (isMine) {
+            container.getChildren().add(bubble);
+
+            String avatarUrlVal = session.getAvatarUrl();
+            Circle myAvatar;
+            if (avatarUrlVal != null && !avatarUrlVal.isEmpty()) {
+                myAvatar = new Circle(16);
+                myAvatar.setFill(new javafx.scene.paint.ImagePattern(new javafx.scene.image.Image(
+                        com.minisocial.desktop.config.AppConfig.getFullImageUrl(avatarUrlVal))));
+            } else {
+                myAvatar = new Circle(16, Color.web("#4f46e5"));
+            }
+            container.getChildren().add(myAvatar);
+            myAvatar.visibleProperty().bind(bubble.visibleProperty()); // Simplified for now
+        } else {
+            Circle partnerAvatar;
+            if (msg.getSenderAvatar() != null && !msg.getSenderAvatar().isEmpty()) {
+                partnerAvatar = new Circle(16);
+                partnerAvatar.setFill(new javafx.scene.paint.ImagePattern(new javafx.scene.image.Image(
+                        com.minisocial.desktop.config.AppConfig.getFullImageUrl(msg.getSenderAvatar()))));
+            } else {
+                partnerAvatar = new Circle(16, Color.web("#6366f1"));
+            }
+            container.getChildren().addAll(partnerAvatar, bubble);
+        }
+
         return container;
     }
 
