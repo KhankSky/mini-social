@@ -57,7 +57,9 @@ pipeline {
                             
                             # Restart container FE
                             export DOCKER_HUB_USERNAME=khanksky
-                            docker compose up -d --no-deps social-fe
+                            # Chỉ định rõ file docker-compose.yml (hoặc docker-compose.prod.yml nếu bạn đã copy nó lên và đổi tên)
+                            # Giả sử file trên server tên là docker-compose.yml
+                            docker compose -f docker-compose.yml up -d --no-deps social-fe
                         '
                     """
                 }
