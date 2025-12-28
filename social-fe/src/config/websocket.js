@@ -4,7 +4,7 @@ import Stomp from 'stompjs';
 let stompClient = null;
 
 export const connectWebSocket = (onMessageReceived, onConnected, onError) => {
-    const socket = new SockJS('http://localhost:9090/ws');
+    const socket = new SockJS('http://152.42.186.105:8080/ws');
     stompClient = Stomp.over(socket);
 
     // Disable debug logs

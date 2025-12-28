@@ -21,7 +21,7 @@ class WebRTCService {
 
     // Connect to WebSocket for signaling
     connectSignaling(onCallOffer, onCallAnswer, onIceCandidate, onCallReject, onCallEnd) {
-        const socket = new SockJS('http://localhost:9090/ws');
+        const socket = new SockJS('http://152.42.186.105:8080/ws');
         this.stompClient = Stomp.over(socket);
 
         const token = localStorage.getItem('social_app_token');
