@@ -47,21 +47,14 @@
                     </VBox>
                 </HBox>
 
-                <VBox spacing="6">
-                    <Label styleClass="section-label" text="Avatar URL" />
-                    <TextField fx:id="avatarUrlField" promptText="https://example.com/avatar.png" />
-                </VBox>
+
                 
                 <VBox spacing="6">
                     <Label styleClass="section-label" text="Username" />
                     <TextField fx:id="usernameField" promptText="Enter your username" />
                 </VBox>
 
-                <VBox spacing="6" VBox.vgrow="ALWAYS">
-                    <Label styleClass="section-label" text="Bio" />
-                    <TextArea fx:id="bioArea" prefRowCount="4" promptText="Write a few sentences about yourself." wrapText="true" />
-                    <Label style="-fx-text-fill: #6b7280; -fx-font-size: 12px;" text="Brief description for your profile." />
-                </VBox>
+
 
                 <HBox alignment="CENTER_RIGHT" spacing="12">
                      <Button style="-fx-background-color: transparent; -fx-text-fill: #4b5563; -fx-font-weight: bold;" text="Cancel" />
