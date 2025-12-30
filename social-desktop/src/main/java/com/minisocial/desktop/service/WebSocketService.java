@@ -112,15 +112,17 @@ public class WebSocketService {
         converter.setObjectMapper(objectMapper);
         stompClient.setMessageConverter(converter);
 
-        WebSocketHttpHeaders handshakeHeaders = new WebSocketHttpHeaders();
-        handshakeHeaders.add("Authorization", AppConfig.AUTH_TOKEN);
+        // Extract token without "Bearer " prefix for URL parameter
+        String token = AppConfig.AUTH_TOKEN;
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
 
-        StompHeaders connectHeaders = new StompHeaders();
-        // Send Authorization header (Bearer token)
-        // connectHeaders.add("Authorization", AppConfig.AUTH_TOKEN);
+        // Build URL with token as query parameter (required for SockJS authentication)
+        String wsUrl = url + "?token=" + token;
 
-        System.out.println("Connecting to WebSocket at: " + url);
-        stompClient.connectAsync(url, handshakeHeaders, connectHeaders, new StompSessionHandlerAdapter() {
+        System.out.println("Connecting to WebSocket at: " + wsUrl);
+        stompClient.connectAsync(wsUrl, new StompSessionHandlerAdapter() {
             @Override
             public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
                 System.out.println("WebSocket Connected! Session ID: " + session.getSessionId());

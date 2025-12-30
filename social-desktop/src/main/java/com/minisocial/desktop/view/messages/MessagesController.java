@@ -101,19 +101,10 @@ public class MessagesController {
         // Create listener instances to save references
         this.messageListener = this::handleNewMessage;
         this.callListener = this::handleCallReceived;
+        // Notification listener - no popup needed for messages page
         this.notificationListener = notification -> {
-            Platform.runLater(() -> {
-                if (notification instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> data = (Map<String, Object>) notification;
-                    String msg = (String) data.getOrDefault("content", "New Notification");
-                    // Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    // alert.setTitle("Notification");
-                    // alert.setHeaderText(null);
-                    // alert.setContentText(msg);
-                    // alert.show();
-                }
-            });
+            // Just log, no popup
+            System.out.println("Received notification in MessagesController");
         };
         
         webSocketService.connect(messageListener, callListener, notificationListener);

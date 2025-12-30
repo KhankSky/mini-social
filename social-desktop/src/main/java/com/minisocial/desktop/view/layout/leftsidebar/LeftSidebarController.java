@@ -11,6 +11,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.application.Platform;
 import java.util.Map;
+import java.util.function.Consumer;
 import com.minisocial.desktop.service.WebSocketService;
 import com.minisocial.desktop.config.AppConfig;
 import java.io.IOException;
