@@ -98,11 +98,11 @@ public class MessagesController {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> data = (Map<String, Object>) notification;
                     String msg = (String) data.getOrDefault("content", "New Notification");
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Notification");
-                    alert.setHeaderText(null);
-                    alert.setContentText(msg);
-                    alert.show();
+                    // Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    // alert.setTitle("Notification");
+                    // alert.setHeaderText(null);
+                    // alert.setContentText(msg);
+                    // alert.show();
                 }
             });
         });
