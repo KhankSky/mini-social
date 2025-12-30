@@ -9,9 +9,7 @@ const SettingsPage = () => {
 
     // Profile Form
     const [profileForm, setProfileForm] = useState({
-        username: '',
-        bio: '',
-        avatarUrl: ''
+        username: ''
     });
 
     // Password Form
@@ -29,9 +27,7 @@ const SettingsPage = () => {
                 const currentUser = await AuthService.fetchProfile();
                 setUser(currentUser);
                 setProfileForm({
-                    username: currentUser.username || '',
-                    bio: currentUser.bio || '',
-                    avatarUrl: currentUser.avatarUrl || ''
+                    username: currentUser.username || ''
                 });
             } catch (error) {
                 console.error("Failed to load profile", error);
@@ -115,24 +111,6 @@ const SettingsPage = () => {
                             value={profileForm.username}
                             onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
                         />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Bio</label>
-                        <textarea
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black outline-none h-24"
-                            value={profileForm.bio}
-                            onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Avatar URL</label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black outline-none"
-                            value={profileForm.avatarUrl}
-                            onChange={(e) => setProfileForm({ ...profileForm, avatarUrl: e.target.value })}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Paste an image URL (e.g., from DiceBear or imgur).</p>
                     </div>
                     <button type="submit" className="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800">
                         Save Changes

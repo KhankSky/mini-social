@@ -5,12 +5,12 @@ let stompClient = null;
 
 export const connectWebSocket = (onMessageReceived, onConnected, onError) => {
     const socket = new SockJS('http://152.42.186.105:8080/ws');
+    const token = localStorage.getItem('social_app_token');
+    const socket = new SockJS(`${API_ORIGIN}/ws?token=${token}`);
     stompClient = Stomp.over(socket);
 
     // Disable debug logs
     stompClient.debug = () => { };
-
-    const token = localStorage.getItem('token');
 
     stompClient.connect(
         { Authorization: `Bearer ${token}` },

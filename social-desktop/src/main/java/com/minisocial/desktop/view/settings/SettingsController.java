@@ -29,10 +29,6 @@ public class SettingsController {
 
     @FXML
     private TextField usernameField;
-    @FXML
-    private TextArea bioArea;
-    @FXML
-    private TextField avatarUrlField;
 
     @FXML
     private PasswordField currentPasswordField;
@@ -45,6 +41,8 @@ public class SettingsController {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private String currentAvatarUrl;
+    private String currentBio;
     private Long userId; // We need to know current user ID
 
     public SettingsController(UserSession session, MainLayoutController mainLayoutController) {
@@ -115,8 +113,8 @@ public class SettingsController {
                     userId = ((Number) user.get("id")).longValue();
                     Platform.runLater(() -> {
                         usernameField.setText((String) user.get("username"));
-                        bioArea.setText((String) user.get("bio"));
-                        avatarUrlField.setText((String) user.get("avatarUrl"));
+                        currentBio = (String) user.get("bio");
+                        currentAvatarUrl = (String) user.get("avatarUrl");
                     });
                 }
             } catch (Exception e) {
@@ -133,8 +131,8 @@ public class SettingsController {
         Map<String, Object> payload = new HashMap<>();
         payload.put("id", userId);
         payload.put("username", usernameField.getText());
-        payload.put("bio", bioArea.getText());
-        payload.put("avatarUrl", avatarUrlField.getText());
+        payload.put("bio", currentBio);
+        payload.put("avatarUrl", currentAvatarUrl);
 
         new Thread(() -> {
             try {
@@ -151,8 +149,7 @@ public class SettingsController {
                 Platform.runLater(() -> {
                     if (response.statusCode() == 200) {
                         // Update the user session with the new avatar URL
-                        String newAvatarUrl = avatarUrlField.getText();
-                        session.setAvatarUrl(newAvatarUrl);
+                        session.setAvatarUrl(currentAvatarUrl);
 
                         // Update avatars in all relevant UI components
                         if (mainLayoutController != null) {

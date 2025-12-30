@@ -105,6 +105,8 @@ public class FriendService {
         }
     }
 
+
+
     public void unfriend(Long friendId) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format("%s/%d", AppConfig.FRIENDS_ENDPOINT, friendId)))

@@ -153,7 +153,7 @@ const Sidebar = ({ user }) => {
             )}
           </button>
           {showDropdown && (
-            <div className="absolute left-full ml-2 top-0 z-50">
+            <div className="absolute left-full ml-4 top-0 z-[100]">
               <NotificationDropdown
                 notifications={notifications}
                 onMarkRead={handleMarkRead}

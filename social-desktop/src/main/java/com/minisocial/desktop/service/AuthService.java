@@ -67,4 +67,29 @@ public class AuthService {
             throw new IOException("Failed to get user details: " + response.statusCode());
         }
     }
+    public void register(String email, String username, String password) throws IOException, InterruptedException {
+        String url = AppConfig.BASE_URL + "/users";
+        Map<String, String> body = Map.of(
+                "email", email,
+                "username", username,
+                "password", password);
+        String jsonBody = objectMapper.writeValueAsString(body);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200 && response.statusCode() != 201) {
+            String errorBody = response.body();
+            String message = "Registration failed (Status: " + response.statusCode() + ")";
+            if (errorBody != null && !errorBody.isEmpty()) {
+                message += ": " + errorBody;
+            }
+            throw new IOException(message);
+        }
+    }
 }
