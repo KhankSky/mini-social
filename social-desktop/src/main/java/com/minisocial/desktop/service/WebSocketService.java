@@ -9,6 +9,7 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -50,12 +51,15 @@ public class WebSocketService {
         converter.setObjectMapper(objectMapper);
         stompClient.setMessageConverter(converter);
 
+        WebSocketHttpHeaders handshakeHeaders = new WebSocketHttpHeaders();
+        handshakeHeaders.add("Authorization", AppConfig.AUTH_TOKEN);
+
         StompHeaders connectHeaders = new StompHeaders();
         // Send Authorization header (Bearer token)
-        connectHeaders.add("Authorization", AppConfig.AUTH_TOKEN);
+        // connectHeaders.add("Authorization", AppConfig.AUTH_TOKEN);
 
         System.out.println("Connecting to WebSocket at: " + url);
-        stompClient.connectAsync(url, new StompSessionHandlerAdapter() {
+        stompClient.connectAsync(url, handshakeHeaders, connectHeaders, new StompSessionHandlerAdapter() {
             @Override
             public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
                 System.out.println("WebSocket Connected! Session ID: " + session.getSessionId());
@@ -78,7 +82,7 @@ public class WebSocketService {
                 System.err.println("WebSocket Transport Error: " + exception.getMessage());
                 // Handle reconnection logic via UI or service manager if needed
             }
-        }, connectHeaders);
+        });
     }
 
     private void subscribeToMessages() {
