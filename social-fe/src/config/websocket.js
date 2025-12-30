@@ -1,10 +1,10 @@
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import {API_ORIGIN} from "./HttpClient.jsx";
 
 let stompClient = null;
 
 export const connectWebSocket = (onMessageReceived, onConnected, onError) => {
-    const socket = new SockJS('http://152.42.186.105:8080/ws');
     const token = localStorage.getItem('social_app_token');
     const socket = new SockJS(`${API_ORIGIN}/ws?token=${token}`);
     stompClient = Stomp.over(socket);
