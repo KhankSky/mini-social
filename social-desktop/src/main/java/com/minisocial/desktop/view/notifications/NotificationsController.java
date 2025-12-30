@@ -31,11 +31,14 @@ public class NotificationsController {
     @FXML
     private ListView<Map<String, Object>> notificationListView;
 
-    private final WebSocketService webSocketService = new WebSocketService();
+    private final WebSocketService webSocketService = WebSocketService.getInstance();
     private final NotificationPopupService popupService = new NotificationPopupService();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private AppNavigator appNavigator;
+    
+    // Store listener reference for cleanup
+    private Consumer<Object> notificationListener;
 
     public NotificationsController() {
         objectMapper.registerModule(new JavaTimeModule());
@@ -125,24 +128,29 @@ public class NotificationsController {
     }
 
     private void connectWebSocket() {
-        webSocketService.connect(
-                msg -> {
-                },
-                call -> {
-                },
-                notification -> {
-                    Map<String, Object> notifMap = (Map<String, Object>) notification;
-                    Platform.runLater(() -> {
-                        // Add to list view
-                        notificationListView.getItems().add(0, notifMap);
+        // Save listener reference for cleanup
+        notificationListener = notification -> {
+            Map<String, Object> notifMap = (Map<String, Object>) notification;
+            Platform.runLater(() -> {
+                // Add to list view
+                notificationListView.getItems().add(0, notifMap);
 
-                        // Show popup notification
-                        popupService.showNotification(notifMap);
+                // Show popup notification
+                popupService.showNotification(notifMap);
 
-                        // Show system tray notification
-                        SystemTrayNotificationService.showNotification(notifMap);
-                    });
-                });
+                // Show system tray notification
+                SystemTrayNotificationService.showNotification(notifMap);
+            });
+        };
+        
+        webSocketService.connect(null, null, notificationListener);
+    }
+    
+    public void cleanup() {
+        // Remove listener when controller is destroyed
+        if (notificationListener != null) {
+            webSocketService.removeNotificationListener(notificationListener);
+        }
     }
 
     private void markAllNotificationsAsRead() {
