@@ -1,16 +1,16 @@
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import { API_ORIGIN } from './HttpClient';
 
 let stompClient = null;
 
 export const connectWebSocket = (onMessageReceived, onConnected, onError) => {
-    const socket = new SockJS('http://localhost:9090/ws');
+    const token = localStorage.getItem('social_app_token');
+    const socket = new SockJS(`${API_ORIGIN}/ws?token=${token}`);
     stompClient = Stomp.over(socket);
 
     // Disable debug logs
     stompClient.debug = () => { };
-
-    const token = localStorage.getItem('token');
 
     stompClient.connect(
         { Authorization: `Bearer ${token}` },
