@@ -11,8 +11,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      # Sử dụng đường dẫn tuyệt đối hoặc cụ thể để tránh lạc mất dữ liệu
-      - ./mysql_data:/var/lib/mysql
+      # Sử dụng named volume để đảm bảo dữ liệu không bị mất khi deploy lại
+      - mysql_data_prod:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
     networks:
       - social-network
@@ -50,3 +50,6 @@ services:
 networks:
   social-network:
     driver: bridge
+
+volumes:
+  mysql_data_prod:
