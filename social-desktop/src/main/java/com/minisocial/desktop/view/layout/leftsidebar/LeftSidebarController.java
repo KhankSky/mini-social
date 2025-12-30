@@ -61,9 +61,12 @@ public class LeftSidebarController {
 
     private Button activeButton;
 
-    private final WebSocketService webSocketService = new WebSocketService();
+    private final WebSocketService webSocketService = WebSocketService.getInstance();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    
+    // Store listener reference for cleanup
+    private Consumer<Object> notificationListener;
 
     public LeftSidebarController(UserSession session, MainLayoutController mainController) {
         this.session = session;
@@ -285,21 +288,24 @@ public class LeftSidebarController {
     }
 
     private void connectWebSocket() {
-        webSocketService.connect(
-                msg -> {
-                    // Handle general messages
-                },
-                call -> {
-                    // Handle call messages
-                },
-                notification -> {
-                    // When a new notification arrives, update the indicator
-                    Platform.runLater(() -> {
-                        if (notificationIndicator != null) {
-                            notificationIndicator.setVisible(true);
-                        }
-                    });
-                });
+        // Save listener reference for cleanup
+        notificationListener = notification -> {
+            // When a new notification arrives, update the indicator
+            Platform.runLater(() -> {
+                if (notificationIndicator != null) {
+                    notificationIndicator.setVisible(true);
+                }
+            });
+        };
+        
+        webSocketService.connect(null, null, notificationListener);
+    }
+    
+    public void cleanup() {
+        // Remove listener when controller is destroyed
+        if (notificationListener != null) {
+            webSocketService.removeNotificationListener(notificationListener);
+        }
     }
 
     public void hideNotificationIndicator() {

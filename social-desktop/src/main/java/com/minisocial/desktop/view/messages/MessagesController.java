@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.sound.sampled.*;
 import java.io.*;
 import javafx.scene.media.Media;
@@ -36,6 +37,11 @@ public class MessagesController {
     private final MessageService messageService;
     private final com.minisocial.desktop.service.WebSocketService webSocketService;
     private final Long targetUserId;
+    
+    // Listener references for cleanup
+    private Consumer<MessageDTO> messageListener;
+    private Consumer<Map<String, Object>> callListener;
+    private Consumer<Object> notificationListener;
 
     @FXML
     private VBox conversationList;
@@ -76,7 +82,7 @@ public class MessagesController {
     public MessagesController(AppNavigator navigator, UserSession session, Long targetUserId) {
         this.session = session;
         this.messageService = new MessageService();
-        this.webSocketService = new com.minisocial.desktop.service.WebSocketService();
+        this.webSocketService = com.minisocial.desktop.service.WebSocketService.getInstance();
         this.targetUserId = targetUserId;
     }
 
@@ -92,7 +98,10 @@ public class MessagesController {
     }
 
     private void connectWebSocket() {
-        webSocketService.connect(this::handleNewMessage, this::handleCallReceived, notification -> {
+        // Create listener instances to save references
+        this.messageListener = this::handleNewMessage;
+        this.callListener = this::handleCallReceived;
+        this.notificationListener = notification -> {
             Platform.runLater(() -> {
                 if (notification instanceof Map) {
                     @SuppressWarnings("unchecked")
@@ -105,7 +114,9 @@ public class MessagesController {
                     alert.show();
                 }
             });
-        });
+        };
+        
+        webSocketService.connect(messageListener, callListener, notificationListener);
     }
 
     private void handleCallReceived(Map<String, Object> callData) {
@@ -168,7 +179,16 @@ public class MessagesController {
     }
 
     public void stop() {
-        webSocketService.disconnect();
+        // Remove listeners when controller is stopped
+        if (messageListener != null) {
+            webSocketService.removeMessageListener(messageListener);
+        }
+        if (callListener != null) {
+            webSocketService.removeCallListener(callListener);
+        }
+        if (notificationListener != null) {
+            webSocketService.removeNotificationListener(notificationListener);
+        }
     }
 
     private void loadConversations() {
