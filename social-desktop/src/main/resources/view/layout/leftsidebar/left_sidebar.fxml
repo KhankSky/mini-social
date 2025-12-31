@@ -29,7 +29,7 @@
             <graphic>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <FontIcon iconLiteral="fas-newspaper" iconSize="16" iconColor="white"/>
-                    <Label text="News Feed" styleClass="nav-label-white"/>
+                    <Label text="News Feed" styleClass="nav-label"/>
                 </HBox>
             </graphic>
         </Button>
