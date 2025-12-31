@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'develop', description: 'Nhánh code cần build (ví dụ: main, develop)')
+        string(name: 'BRANCH_NAME', defaultValue: 'prod', description: 'Nhánh code cần build (ví dụ: main, develop)')
     }
     
     environment {
