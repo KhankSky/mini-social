@@ -655,7 +655,20 @@ public class FeedController {
     }
 
     private VBox buildCommentView(CommentDTO comment) {
-        ImageView avatar = new ImageView(comment.getUserAvatarUrl());
+        // Xử lý avatar URL null hoặc empty
+        String avatarUrl = comment.getUserAvatarUrl();
+        Image avatarImage;
+        if (avatarUrl == null || avatarUrl.isEmpty()) {
+            avatarImage = new Image("https://api.dicebear.com/7.x/avataaars/png?seed=" + comment.getUsername());
+        } else {
+            try {
+                avatarImage = new Image(avatarUrl, true);
+            } catch (Exception e) {
+                avatarImage = new Image("https://api.dicebear.com/7.x/avataaars/png?seed=" + comment.getUsername());
+            }
+        }
+        
+        ImageView avatar = new ImageView(avatarImage);
         avatar.setFitWidth(40);
         avatar.setFitHeight(40);
         avatar.setPreserveRatio(true);
