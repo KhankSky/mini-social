@@ -32,6 +32,14 @@ public class Post {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "privacy", nullable = false)
+    @Builder.Default
+    private PostPrivacy privacy = PostPrivacy.PUBLIC;
+
+    @Column(name = "location")
+    private String location;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

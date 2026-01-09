@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.minisocial.desktop.view.register.RegisterController"
+           prefWidth="960" prefHeight="640"
+           styleClass="register-root">
+    <Pane styleClass="register-blobs"/>
+    <VBox alignment="CENTER" spacing="20">
+        <padding>
+            <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+        </padding>
+        <VBox spacing="12" alignment="CENTER"
+              maxWidth="420"
+              styleClass="glass-card">
+            <Label text="Join MiniSocial"
+                   styleClass="title"/>
+            <Label text="Create your account to get started"
+                   styleClass="subtitle"/>
+
+            <Label fx:id="errorLabel"
+                   text="Registration failed"
+                   visible="false"
+                   styleClass="error-label"/>
+
+            <VBox spacing="8" prefWidth="360">
+                <Label text="Email" styleClass="input-label"/>
+                <TextField fx:id="emailField"
+                           promptText="Enter your email"
+                           styleClass="input-control"/>
+            </VBox>
+
+            <VBox spacing="8" prefWidth="360">
+                <Label text="Username (optional)" styleClass="input-label"/>
+                <TextField fx:id="usernameField"
+                           promptText="Choose a username"
+                           styleClass="input-control"/>
+            </VBox>
+
+            <VBox spacing="8" prefWidth="360">
+                <Label text="Password" styleClass="input-label"/>
+                <PasswordField fx:id="passwordField"
+                               promptText="Create a password (min 6 characters)"
+                               styleClass="input-control"/>
+            </VBox>
+
+            <Button fx:id="registerButton"
+                    text="Create Account"
+                    onAction="#handleRegister"
+                    maxWidth="360"
+                    styleClass="register-button"/>
+
+            <ProgressIndicator fx:id="spinner" prefWidth="32" prefHeight="32"/>
+
+            <HBox spacing="4" alignment="CENTER">
+                <Label text="Already have an account? " styleClass="subtitle"/>
+                <Button text="Sign In"
+                        onAction="#handleBackToLogin"
+                        styleClass="link-button-text"/>
+            </HBox>
+        </VBox>
+        <Label text="© 2025 MiniSocial. All rights reserved."
+               styleClass="footer"/>
+    </VBox>
+</StackPane>

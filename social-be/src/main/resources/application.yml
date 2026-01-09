@@ -21,6 +21,9 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+      resources:
+        static-locations: file:uploads/
+        add-mappings: true
 
 # jwt config
 security:
@@ -28,3 +31,6 @@ security:
     jwt:
       base64-secret: "vmAQYNL5dUVxhXl6YljoLbxbsVaWJan7B+a0E5u0jiw6h2fx9AvFqzsV7kGw3xa2FPRS3zPfq+Y1CUfe+VV0Ig=="
       token-validity-in-seconds: 360000
+
+file:
+  upload-dir: uploads
